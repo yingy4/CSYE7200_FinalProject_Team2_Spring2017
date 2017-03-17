@@ -2,8 +2,11 @@
 This is the CSYE7200 FinalProject for Team2 Spring2017
 Team member:
 Yuan Ying - ying.yua@husky.neu.edu
+
 Mushtaq Rizvi - rizvi.m@husky.neu.edu
+
 Wei Huang - huang.wei3@husky.neu.edu
+
 Jinjin Zhang -
 
 # Sentiment Analysis on Tweets
