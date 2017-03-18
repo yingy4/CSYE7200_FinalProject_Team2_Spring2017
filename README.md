@@ -9,7 +9,7 @@ Mushtaq Rizvi - rizvi.m@husky.neu.edu
 
 Wei Huang - huang.wei3@husky.neu.edu
 
-Jinjin Zhang -
+Jinjin Zhang - zhang.jinj@husky.neu.edu
 
 # Sentiment Analysis on Tweets
 
