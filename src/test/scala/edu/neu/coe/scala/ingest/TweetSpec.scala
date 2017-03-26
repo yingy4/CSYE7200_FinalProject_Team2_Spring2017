@@ -11,7 +11,7 @@ import scala.util._
 class TweetSpec extends FlatSpec with Matchers{
 
 
-  behavior of "Tweet"
+  behavior of "Tweet convert for tweet1.json"
 
   it should "match the size" in {
     val ingester = new Ingest[Tweet]()
@@ -48,4 +48,27 @@ class TweetSpec extends FlatSpec with Matchers{
   }
 
 
+  behavior of "Tweet convert for tweet3.json"
+
+  it should "match the size" in {
+    val ingester = new Ingest[Tweet]()
+    implicit val codec = Codec.UTF8
+    val source = Source.fromFile("testdata//tweet3.json")
+    val ts = for (t <- ingester(source).toSeq) yield t
+    ts.size shouldBe 3
+    source.close()
+  }
+
+  it should "match content" in {
+    val ingester = new Ingest[Tweet]()
+    implicit val codec = Codec.UTF8
+    val source = Source.fromFile("testdata//tweet3.json")
+    val tts = for (t <- ingester(source).toSeq) yield t
+    val ts = for (a <- tts) yield a match {
+      case Success(x) => x
+      case Failure(e) => throw new Exception("err:"+e)
+    }
+    ts.map(x => x.retweet_count).toList shouldBe List(2301, 2547, 4310)
+    source.close()
+  }
 }
