@@ -44,6 +44,10 @@ class TweetSpec extends FlatSpec with Matchers{
     tweet.created_at shouldBe "Tue Aug 23 13:53:11 +0000 2016"
     tweet.lang shouldBe "en"
     tweet.text shouldBe "It is being reported by virtually everyone, and is a fact, that the media pile on against me is the worst in American political history!"
+    tweet.user.id shouldBe 25073877
+    tweet.user.favourites_count shouldBe 35
+    tweet.user.location shouldBe "New York, NY"
+    tweet.user.name shouldBe "Donald J. Trump"
     source.close()
   }
 
@@ -69,6 +73,7 @@ class TweetSpec extends FlatSpec with Matchers{
       case Failure(e) => throw new Exception("err:"+e)
     }
     ts.map(x => x.retweet_count).toList shouldBe List(2301, 2547, 4310)
+    ts.map(x => x.user.id).toList shouldBe List(25073877, 25073877, 25073877)
     source.close()
   }
 }

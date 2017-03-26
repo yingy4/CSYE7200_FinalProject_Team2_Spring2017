@@ -5,13 +5,16 @@ import scala.util._
 /**
   * Created by Yuan Ying on 2017/3/26.
   */
-case class Tweet(text: String,lang: String,created_at: String,retweet_count: Int)
+case class Tweet(text: String,lang: String,created_at: String,retweet_count: Int, user: User)
+
+case class User(id: Int, favourites_count: Int, location: String, name: String)
 
 object Tweet extends App {
   import spray.json._
 
   object TweetProtocol extends DefaultJsonProtocol {
-    implicit val formatTweet = jsonFormat4(Tweet.apply)
+    implicit val formatUser = jsonFormat4(User.apply)
+    implicit val formatTweet = jsonFormat5(Tweet.apply)
   }
 
   trait IngestibleTweet extends Ingestible[Tweet] {
