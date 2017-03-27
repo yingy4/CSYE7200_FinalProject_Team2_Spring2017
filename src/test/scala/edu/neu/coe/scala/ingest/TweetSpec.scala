@@ -40,14 +40,15 @@ class TweetSpec extends FlatSpec with Matchers{
       case Success(x) => x
       case Failure(e) => throw new Exception("err:"+e)
     }
-    tweet.retweet_count shouldBe 2301
-    tweet.created_at shouldBe "Tue Aug 23 13:53:11 +0000 2016"
+    tweet.retweet_count shouldBe 3746
+    tweet.created_at shouldBe "Mon Aug 22 01:23:16 +0000 2016"
     tweet.lang shouldBe "en"
-    tweet.text shouldBe "It is being reported by virtually everyone, and is a fact, that the media pile on against me is the worst in American political history!"
+    tweet.text shouldBe "\"@SinAbunz_TM: @realDonaldTrump TRUMP VICTORY IN NOVEMBER! #MAGA #TrumpPence16\""
     tweet.user.id shouldBe 25073877
     tweet.user.favourites_count shouldBe 35
     tweet.user.location shouldBe "New York, NY"
     tweet.user.name shouldBe "Donald J. Trump"
+    tweet.entities.hashtags.map(x => x.text) shouldBe List("MAGA","TrumpPence16")
     source.close()
   }
 
@@ -72,8 +73,9 @@ class TweetSpec extends FlatSpec with Matchers{
       case Success(x) => x
       case Failure(e) => throw new Exception("err:"+e)
     }
-    ts.map(x => x.retweet_count).toList shouldBe List(2301, 2547, 4310)
+    ts.map(x => x.retweet_count).toList shouldBe List(3746, 2301, 2547)
     ts.map(x => x.user.id).toList shouldBe List(25073877, 25073877, 25073877)
+    ts.map(x => x.entities.hashtags).map(y => y.map(z => z.text)) shouldBe List(List("MAGA","TrumpPence16"),Nil,Nil)
     source.close()
   }
 }
