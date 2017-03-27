@@ -1,3 +1,4 @@
+package edu.neu.coe.scala.retrieval
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer
 import org.apache.commons.io.IOUtils
 import org.apache.http.client.methods.HttpGet
