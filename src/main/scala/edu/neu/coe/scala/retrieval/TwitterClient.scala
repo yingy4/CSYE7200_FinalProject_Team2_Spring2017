@@ -36,6 +36,10 @@ object TwitterClient {
 
     println(IOUtils.toString(response.getEntity().getContent()))
 
+    sparkTestRun()
+  }
+
+  def sparkTestRun(): Unit = {
     /**
       * Spark test run, counts the number of ratings (1 - 5) in testdata/u.data
       * by Wei Huang, Mar. 28
