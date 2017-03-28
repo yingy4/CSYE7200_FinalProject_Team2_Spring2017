@@ -16,8 +16,9 @@ libraryDependencies ++= Seq(
   "oauth.signpost" % "signpost-commonshttp4" % "1.2",
   "org.apache.httpcomponents" % "httpclient" % "4.5",
   "org.apache.httpcomponents" % "httpcore" % "4.4.6",
-  "org.apache.commons" % "commons-io" % "1.3.2")
+  "org.apache.commons" % "commons-io" % "1.3.2",
+  "org.apache.spark" %% "spark-core" % "2.1.0")
 
 val sprayGroup = "io.spray"
 val sprayJsonVersion = "1.3.2"
-libraryDependencies ++= List("spray-json") map {c => sprayGroup %% c % sprayJsonVersion}
+libraryDependencies ++= List("spray-json") map { c => sprayGroup %% c % sprayJsonVersion }
