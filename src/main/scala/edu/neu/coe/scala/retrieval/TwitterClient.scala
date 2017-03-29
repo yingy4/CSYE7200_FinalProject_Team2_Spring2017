@@ -38,7 +38,7 @@ object TwitterClient {
     var tweet_string = IOUtils.toString(response.getEntity().getContent())
     println(tweet_string)
 
-    new PrintWriter("C:\\Users\\Mushtaq\\Downloads\\Scala\\sample_tweets.json") { write(tweet_string); close }
+    new PrintWriter("C:\\Users\\Mushtaq\\Downloads\\Scala\\searchapi_sample.json") { write(tweet_string); close }
 
     sparkTestRun()
   }
