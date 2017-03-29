@@ -7,6 +7,7 @@ import org.apache.http.impl.client.{DefaultHttpClient, HttpClientBuilder}
 import twitter4j.TwitterFactory
 import twitter4j.conf.ConfigurationBuilder
 import twitter4j.Twitter
+import java.io.PrintWriter
 
 import org.apache.spark._
 import org.apache.spark.SparkContext._
@@ -34,7 +35,10 @@ object TwitterClient {
 
     println(response.getStatusLine().getStatusCode())
 
-    println(IOUtils.toString(response.getEntity().getContent()))
+    var tweet_string = IOUtils.toString(response.getEntity().getContent())
+    println(tweet_string)
+
+    new PrintWriter("C:\\Users\\Mushtaq\\Downloads\\Scala\\sample_tweets.json") { write(tweet_string); close }
 
     sparkTestRun()
   }
