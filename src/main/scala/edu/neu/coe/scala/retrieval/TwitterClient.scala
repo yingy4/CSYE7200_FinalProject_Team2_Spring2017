@@ -12,6 +12,8 @@ import java.io.PrintWriter
 import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.log4j._
+import org.apache.spark.streaming._
+import org.apache.spark.streaming.twitter._
 
 /**
   * Created by Mushtaq on 3/26/2017.
@@ -40,38 +42,93 @@ object TwitterClient {
 
     new PrintWriter("C:\\Users\\Mushtaq\\Downloads\\Scala\\searchapi_sample.json") { write(tweet_string); close }
 
-    sparkTestRun()
+//    sparkTestRun
+    popularHashTags
   }
 
+  /**
+    * Spark test run, counts the number of ratings (1 - 5) in testdata/u.data
+    * by Wei Huang, Mar. 28
+    */
   def sparkTestRun(): Unit = {
-    /**
-      * Spark test run, counts the number of ratings (1 - 5) in testdata/u.data
-      * by Wei Huang, Mar. 28
-      */
 
     println("\nSpark test run\n")
 
-    // Set the log level to only print errors
+    // set the log level to only print errors
     Logger.getLogger("org").setLevel(Level.ERROR)
 
-    // Create a SparkContext using every core of the local machine, named RatingsCounter
+    // create a SparkContext using every core of the local machine, named RatingsCounter
     val sc = new SparkContext("local[*]", "RatingsCounter")
 
-    // Load up each line of the ratings data into an RDD
+    // load up each line of the ratings data into an RDD
     val lines = sc.textFile("testdata/u.data")
 
-    // Convert each line to a string, split it out by tabs, and extract the third field.
+    // convert each line to a string, split it out by tabs, and extract the third field.
     // (The file format is userID, movieID, rating, timestamp)
     val ratings = lines.map(x => x.toString().split("\t")(2))
 
-    // Count up how many times each value (rating) occurs
+    // count up how many times each value (rating) occurs
     val results = ratings.countByValue()
 
-    // Sort the resulting map of (rating, count) tuples
+    // sort the resulting map of (rating, count) tuples
     val sortedResults = results.toSeq.sortBy(_._1)
 
     // Print each result on its own line.
     sortedResults.foreach(println)
   }
 
+  /**
+    * Spark stream test run
+    * Listens to a stream of Tweets and keeps track of the most popular
+    * hashtags over a 5 minute window.
+    * by Wei Huang, Mar. 30
+    */
+  def popularHashTags(): Unit = {
+
+    // set the log level to only print errors
+    Logger.getLogger("org").setLevel(Level.ERROR)
+
+    // create a SparkContext
+    val sc = new SparkContext("local[*]", "PopularHashtags")
+
+    // create up a Spark streaming context named "PopularHashtags" that runs locally using
+    // all CPU cores and one-second batches of data
+    val ssc = new StreamingContext(sc, Seconds(1))
+
+    System.setProperty("twitter4j.oauth.consumerKey", ConsumerKey)
+    System.setProperty("twitter4j.oauth.consumerSecret", ConsumerSecret)
+    System.setProperty("twitter4j.oauth.accessToken", AccessToken)
+    System.setProperty("twitter4j.oauth.accessTokenSecret", AccessSecret)
+
+    // create a DStream from Twitter using our streaming context
+    val tweets = TwitterUtils.createStream(ssc, None)
+
+    // extract the text of each status update into DStreams using map()
+    val statuses = tweets.map(status => status.getText())
+
+    // blow out each word into a new DStream
+    val tweetwords = statuses.flatMap(tweetText => tweetText.split(" "))
+
+    // eliminate anything that's not a hashtag
+    val hashtags = tweetwords.filter(word => word.startsWith("#"))
+
+    // map each hashtag to a key/value pair of (hashtag, 1) so we can count them up by adding up the values
+    val hashtagKeyValues = hashtags.map(hashtag => (hashtag, 1))
+
+    // count them up over a 5 minute window sliding every one second
+    val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow((x, y) => x + y, (x, y) => x - y, Seconds(300), Seconds(1))
+    //  You will often see this written in the following shorthand:
+    //val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow( _ + _, _ -_, Seconds(300), Seconds(1))
+
+    // sort the results by the count values
+    val sortedResults = hashtagCounts.transform(rdd => rdd.sortBy(x => x._2, false))
+
+    // print the top 10
+    sortedResults.print
+
+    // set a checkpoint directory, and start
+    ssc.checkpoint("testdata/checkpoint/")
+    ssc.start()
+    ssc.awaitTermination()
+  }
 }
