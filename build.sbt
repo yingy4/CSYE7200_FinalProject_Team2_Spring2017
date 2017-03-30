@@ -1,4 +1,4 @@
-name := "Team2-Yuan Ying-Mushtaq Rizvi-Wei Huang-FinalProject"
+name := "Team2-Yuan Ying-Mushtaq Rizvi-Wei Huang-Jinjin Zhang-FinalProject"
 
 version := "1.0"
 
