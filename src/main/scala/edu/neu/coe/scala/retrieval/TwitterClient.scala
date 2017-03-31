@@ -7,7 +7,7 @@ import org.apache.http.impl.client.{DefaultHttpClient, HttpClientBuilder}
 import twitter4j.TwitterFactory
 import twitter4j.conf.ConfigurationBuilder
 import twitter4j.Twitter
-import java.io.PrintWriter
+import java.io.{InputStream, PrintWriter}
 
 import org.apache.spark._
 import org.apache.spark.SparkContext._
@@ -26,6 +26,16 @@ object TwitterClient {
   val AccessToken = "708481334482698240-QTn0EaokD6IVWFH0ZUhzlW48rdl42Qt"
   val AccessSecret = "7XfA0v9j0utKeUuf44n2YEB3AtzqVlMM0ue4IrJC0v2cK"
 
+  def getFromSearchApiByKeyword(k: String): InputStream = {
+    val consumer = new CommonsHttpOAuthConsumer(ConsumerKey, ConsumerSecret)
+    consumer.setTokenWithSecret(AccessToken, AccessSecret)
+    val request = new HttpGet("https://api.twitter.com/1.1/search/tweets.json?q=Northeastern%20University")
+    consumer.sign(request)
+    val client = HttpClientBuilder.create().build()
+    val response = client.execute(request)
+    response.getEntity().getContent()
+  }
+
   def main(args: Array[String]) {
 
     val consumer = new CommonsHttpOAuthConsumer(ConsumerKey, ConsumerSecret)
@@ -40,7 +50,7 @@ object TwitterClient {
     var tweet_string = IOUtils.toString(response.getEntity().getContent())
     println(tweet_string)
 
-    new PrintWriter("C:\\Users\\Mushtaq\\Downloads\\Scala\\searchapi_sample.json") { write(tweet_string); close }
+    new PrintWriter("searchapi_sample1.json") { write(tweet_string); close }
 
 //    sparkTestRun
     popularHashTags

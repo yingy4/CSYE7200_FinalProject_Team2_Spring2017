@@ -120,4 +120,6 @@ class TweetSpec extends FlatSpec with Matchers{
     tweet.entities.hashtags.map(x => x.text) shouldBe List("2weeksleft")
     source.close()
   }
+
+
 }

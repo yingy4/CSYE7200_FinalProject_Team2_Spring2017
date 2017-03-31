@@ -1,5 +1,7 @@
 package edu.neu.coe.scala.ingest
 
+import spray.json.DefaultJsonProtocol
+
 import scala.util._
 
 /**
@@ -13,15 +15,35 @@ case class Entities(hashtags: List[Hashtag])
 
 case class Hashtag(text: String)
 
-object Tweet extends App {
+case class Response(statuses: List[Tweet])
+
+object TweetProtocol extends DefaultJsonProtocol {
+  implicit val formatUser = jsonFormat4(User.apply)
+  implicit val formatHashtag = jsonFormat1(Hashtag.apply)
+  implicit val formatEntities = jsonFormat1(Entities.apply)
+  implicit val formatTweet = jsonFormat6(Tweet.apply)
+  implicit val formatResponse = jsonFormat1(Response.apply)
+}
+
+object Response {
   import spray.json._
 
-  object TweetProtocol extends DefaultJsonProtocol {
-    implicit val formatUser = jsonFormat4(User.apply)
-    implicit val formatHashtag = jsonFormat1(Hashtag.apply)
-    implicit val formatEntities = jsonFormat1(Entities.apply)
-    implicit val formatTweet = jsonFormat6(Tweet.apply)
+  trait IngestibleResponse extends Ingestible[Response] {
+
+    def fromString(w: String): Try[Response] = {
+      println("w="+w.parseJson.prettyPrint)
+      import TweetProtocol._
+      Try(w.parseJson.convertTo[Response])
+    }
   }
+
+  implicit object IngestibleResponse extends IngestibleResponse
+
+}
+
+
+object Tweet {
+  import spray.json._
 
   trait IngestibleTweet extends Ingestible[Tweet] {
 
