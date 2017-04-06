@@ -15,7 +15,7 @@ class TwitterClientSpec extends FlatSpec with Matchers{
 
   behavior of "Tweet convert from api"
 
-  it should "match the size" in {
+  it should "only has one response" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
     val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("abc"))
@@ -43,6 +43,19 @@ class TwitterClientSpec extends FlatSpec with Matchers{
       case Failure(e) => throw new Exception("err:"+e)
     }
     rs.head.statuses.head should matchPattern { case Tweet(_,_,_,_,_,_) => }
+    source.close()
+  }
+
+  it should "match the size with count field" in {
+    val ingester = new Ingest[Response]()
+    implicit val codec = Codec.UTF8
+    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("abc"))
+    val rts = for (t <- ingester(source).toSeq) yield t
+    val rs = for (a <- rts) yield a match {
+      case Success(x) => x
+      case Failure(e) => throw new Exception("err:"+e)
+    }
+    rs.head.statuses.size shouldBe rs.head.search_metadata.count
     source.close()
   }
 
