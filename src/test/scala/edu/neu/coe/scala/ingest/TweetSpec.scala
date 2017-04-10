@@ -119,6 +119,28 @@ class TweetSpec extends FlatSpec with Matchers{
     tweet.user.name shouldBe "The Blue Line"
     tweet.entities.hashtags.map(x => x.text) shouldBe List("2weeksleft")
     source.close()
+
+
+    }
+
+  behavior of "Tweet convert for searchapi_sample1.json"
+
+  it should "match the size" in {
+    val ingester = new Ingest[Tweet]()
+    implicit val codec = Codec.UTF8
+    val source = Source.fromFile("searchapi_sample1.json")
+    val ts = for (t <- ingester(source).toSeq) yield t
+    ts.size shouldBe 1
+    source.close()
+  }
+
+  it should "match pattern" in {
+    val ingester = new Ingest[Tweet]()
+    implicit val codec = Codec.UTF8
+    val source = Source.fromFile("searchapi_sample1.json")
+    val ts = for (t <- ingester(source).toSeq) yield t
+    ts should matchPattern { case Stream(Success(_)) => }
+    source.close()
   }
 
 

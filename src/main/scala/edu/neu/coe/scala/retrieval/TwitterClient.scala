@@ -15,6 +15,8 @@ import org.apache.log4j._
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.twitter._
 
+import edu.neu.coe.scala.sentiment._
+
 /**
   * Created by Mushtaq on 3/26/2017.
   */
@@ -29,7 +31,7 @@ object TwitterClient {
   def getFromSearchApiByKeyword(k: String): InputStream = {
     val consumer = new CommonsHttpOAuthConsumer(ConsumerKey, ConsumerSecret)
     consumer.setTokenWithSecret(AccessToken, AccessSecret)
-    val request = new HttpGet("https://api.twitter.com/1.1/search/tweets.json?q=Northeastern%20University")
+    val request = new HttpGet("https://api.twitter.com/1.1/search/tweets.json?q=Boston%20weather")
     consumer.sign(request)
     val client = HttpClientBuilder.create().build()
     val response = client.execute(request)
@@ -53,7 +55,7 @@ object TwitterClient {
     new PrintWriter("searchapi_sample1.json") { write(tweet_string); close }
 
 //    sparkTestRun
-    popularHashTags
+    popularHashTags2
   }
 
   /**
@@ -112,9 +114,11 @@ object TwitterClient {
 
     // create a DStream from Twitter using our streaming context
     val tweets = TwitterUtils.createStream(ssc, None)
+    println("========="+tweets.print())
 
     // extract the text of each status update into DStreams using map()
     val statuses = tweets.map(status => status.getText())
+
 
     // blow out each word into a new DStream
     val tweetwords = statuses.flatMap(tweetText => tweetText.split(" "))
@@ -132,6 +136,60 @@ object TwitterClient {
 
     // sort the results by the count values
     val sortedResults = hashtagCounts.transform(rdd => rdd.sortBy(x => x._2, false))
+
+    // print the top 10
+    sortedResults.print
+
+    // set a checkpoint directory, and start
+    ssc.checkpoint("testdata/checkpoint/")
+    ssc.start()
+    ssc.awaitTermination()
+  }
+
+
+
+  def popularHashTags2(): Unit = {
+
+    // set the log level to only print errors
+    Logger.getLogger("org").setLevel(Level.ERROR)
+
+    // create a SparkContext
+    val sc = new SparkContext("local[*]", "PopularHashtags")
+
+    // create up a Spark streaming context named "PopularHashtags" that runs locally using
+    // all CPU cores and one-second batches of data
+    val ssc = new StreamingContext(sc, Seconds(1))
+
+    System.setProperty("twitter4j.oauth.consumerKey", ConsumerKey)
+    System.setProperty("twitter4j.oauth.consumerSecret", ConsumerSecret)
+    System.setProperty("twitter4j.oauth.accessToken", AccessToken)
+    System.setProperty("twitter4j.oauth.accessTokenSecret", AccessSecret)
+
+    // create a DStream from Twitter using our streaming context
+    val tweets = TwitterUtils.createStream(ssc, None)
+
+    // extract the text of each status update into DStreams using map()
+    //val statuses = tweets.map(status => status.getText())
+    val entweets = tweets.filter(s => s.getLang == "en")
+    val statuses = entweets.map(status => (status.getText(),SentimentUtils.detectSentimentScore(status.getText())))
+
+    // blow out each word into a new DStream
+    //val tweetwords = statuses.flatMap(tweetText => tweetText.split(" "))
+
+    // eliminate anything that's not a hashtag
+    //val hashtags = tweetwords.filter(word => word.startsWith("#"))
+    val hashtags = statuses.map(a => (a._1.split(" ").filter(b => b.startsWith("#")).headOption.getOrElse("NoHashTag"),a._2))
+
+    // map each hashtag to a key/value pair of (hashtag, 1) so we can count them up by adding up the values
+    val hashtagKeyValues = hashtags.map(hashtag => (hashtag._1, (1, hashtag._2)))
+
+    // count them up over a 5 minute window sliding every one second
+    val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow((x, y) => (x._1 + y._1, x._2 + y._2), (x, y) => (x._1 - y._1, x._2 - y._2), Seconds(300), Seconds(1))
+    //  You will often see this written in the following shorthand:
+    //val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow( _ + _, _ -_, Seconds(300), Seconds(1))
+
+    // sort the results by the count values
+    val sortedResults = hashtagCounts.transform(rdd => rdd.sortBy(x => x._2._1, false))
 
     // print the top 10
     sortedResults.print
