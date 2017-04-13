@@ -110,6 +110,23 @@ object Usecases {
     a:(String,(Int,Double)) => (a._1, (a._2._1, a._2._2 / a._2._1))
   }
 
+
+  val getLocationAndSentiment = {
+    status:Status => (matchLocation(status.getGeoLocation), SentimentUtils.detectSentimentScore(status.getText()))
+  }
+
+
+  def matchLocation(g:GeoLocation):String = g match {
+    case g if nearLocation(g,40.730610, -73.935242)  => "New York City"
+    case _ => "Others"
+  }
+
+  def nearLocation(g:GeoLocation,latitude: Double,longitude: Double) = {
+    if ((g.getLatitude < latitude + 10) && (g.getLatitude > latitude - 10) &&
+      (g.getLongitude < longitude + 10) && (g.getLongitude > longitude - 10)
+    ) true else false
+  }
+
   /**
     * Spark test run, counts the number of ratings (1 - 5) in testdata/u.data
     * by Wei Huang, Mar. 28
@@ -139,5 +156,75 @@ object Usecases {
 
     // Print each result on its own line.
     sortedResults.foreach(println)
+  }
+
+
+
+  /**
+    *
+    * @param ConsumerKey    twitter oauth consumerKey
+    * @param ConsumerSecret twitter oauth ConsumerSecret
+    * @param AccessToken    twitter oauth AccessToken
+    * @param AccessSecret   twitter oauth AccessSecret
+    *
+    *                       Listens to a stream of Tweets and keeps track of the most popular
+    *                       locations over a 5 minute window.
+    *                       by Yuan Ying, Apr. 12
+    */
+  def popularLocations(ConsumerKey: String, ConsumerSecret: String, AccessToken: String, AccessSecret: String): Unit = {
+
+    // set the log level to only print errors
+    Logger.getLogger("org").setLevel(Level.ERROR)
+
+    // create a SparkContext
+    val sc = new SparkContext("local[*]", "PopularHashtags")
+
+    // create up a Spark streaming context named "PopularHashtags" that runs locally using
+    // all CPU cores and one-second batches of data
+    val ssc = new StreamingContext(sc, Seconds(1))
+
+    System.setProperty("twitter4j.oauth.consumerKey", ConsumerKey)
+    System.setProperty("twitter4j.oauth.consumerSecret", ConsumerSecret)
+    System.setProperty("twitter4j.oauth.accessToken", AccessToken)
+    System.setProperty("twitter4j.oauth.accessTokenSecret", AccessSecret)
+
+    // create a DStream from Twitter using our streaming context
+    val tweets = TwitterUtils.createStream(ssc, None)
+
+    // extract the text of each status update into DStreams using map()
+    //val statuses = tweets.map(status => status.getText())
+    //val entweets = tweets.filter(s => s.getLang == "en")
+    val entweets = tweets.filter(filterLanguage)
+    //val statuses = entweets.map(status => (status.getText(), SentimentUtils.detectSentimentScore(status.getText())))
+    val statuses = entweets.map(getLocationAndSentiment)
+
+    // blow out each word into a new DStream
+    //val tweetwords = statuses.flatMap(tweetText => tweetText.split(" "))
+
+    // eliminate anything that's not a hashtag
+    //val hashtags = tweetwords.filter(word => word.startsWith("#"))
+    //val hashtags = statuses.map(getHashTags)
+
+    // map each hashtag to a key/value pair of (hashtag, 1) so we can count them up by adding up the values
+    val hashtagKeyValues = statuses.map(addCountToHashTags)
+
+    // count them up over a 5 minute window sliding every one second
+    val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow(plusForTwo, minusForTwo, Seconds(600), Seconds(1))
+    //  You will often see this written in the following shorthand:
+    //val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow( _ + _, _ -_, Seconds(300), Seconds(1))
+
+    val hashtagCountsAveSentimentScore = hashtagCounts.map(countsAveSentimentScore)
+
+    // sort the results by the count values
+    val sortedResults = hashtagCountsAveSentimentScore.transform(rdd => rdd.sortBy(x => x._2._1, false))
+
+    // print the top 10
+    sortedResults.print
+
+
+    // set a checkpoint directory, and start
+    ssc.checkpoint("testdata/checkpoint/")
+    ssc.start()
+    ssc.awaitTermination()
   }
 }
