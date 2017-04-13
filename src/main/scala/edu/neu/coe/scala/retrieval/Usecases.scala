@@ -5,6 +5,7 @@ import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.streaming.twitter.TwitterUtils
+import twitter4j._
 
 /**
   * Usecases
@@ -46,25 +47,27 @@ object Usecases {
 
     // extract the text of each status update into DStreams using map()
     //val statuses = tweets.map(status => status.getText())
-    val entweets = tweets.filter(s => s.getLang == "en")
-    val statuses = entweets.map(status => (status.getText(), SentimentUtils.detectSentimentScore(status.getText())))
+    //val entweets = tweets.filter(s => s.getLang == "en")
+    val entweets = tweets.filter(filterLanguage)
+    //val statuses = entweets.map(status => (status.getText(), SentimentUtils.detectSentimentScore(status.getText())))
+    val statuses = entweets.map(getTextAndSentiment)
 
     // blow out each word into a new DStream
     //val tweetwords = statuses.flatMap(tweetText => tweetText.split(" "))
 
     // eliminate anything that's not a hashtag
     //val hashtags = tweetwords.filter(word => word.startsWith("#"))
-    val hashtags = statuses.map(a => (a._1.split(" ").filter(b => b.startsWith("#")).headOption.getOrElse("NoHashTag"), a._2))
+    val hashtags = statuses.map(getHashTags)
 
     // map each hashtag to a key/value pair of (hashtag, 1) so we can count them up by adding up the values
-    val hashtagKeyValues = hashtags.map(hashtag => (hashtag._1, (1, hashtag._2)))
+    val hashtagKeyValues = hashtags.map(addCountToHashTags)
 
     // count them up over a 5 minute window sliding every one second
-    val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow((x, y) => (x._1 + y._1, x._2 + y._2), (x, y) => (x._1 - y._1, x._2 - y._2), Seconds(600), Seconds(1))
+    val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow(plusForTwo, minusForTwo, Seconds(600), Seconds(1))
     //  You will often see this written in the following shorthand:
     //val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow( _ + _, _ -_, Seconds(300), Seconds(1))
 
-    val hashtagCountsAveSentimentScore = hashtagCounts.map(hashtag => (hashtag._1, (hashtag._2._1, hashtag._2._2 / hashtag._2._1)))
+    val hashtagCountsAveSentimentScore = hashtagCounts.map(countsAveSentimentScore)
 
     // sort the results by the count values
     val sortedResults = hashtagCountsAveSentimentScore.transform(rdd => rdd.sortBy(x => x._2._1, false))
@@ -77,6 +80,34 @@ object Usecases {
     ssc.checkpoint("testdata/checkpoint/")
     ssc.start()
     ssc.awaitTermination()
+  }
+
+  val filterLanguage = {
+    status:Status => status.getLang == "en"
+  }
+
+  val getTextAndSentiment = {
+    status:Status => (status.getText(), SentimentUtils.detectSentimentScore(status.getText()))
+  }
+
+  val getHashTags = {
+    a:(String,Double) => (a._1.split(" ").filter(b => b.startsWith("#")).headOption.getOrElse("NoHashTag"), a._2)
+  }
+
+  val addCountToHashTags = {
+    a:(String,Double) => (a._1, (1, a._2))
+  }
+
+  val plusForTwo = {
+    (x:(Int,Double), y:(Int,Double)) => (x._1 + y._1, x._2 + y._2)
+  }
+
+  val minusForTwo = {
+    (x:(Int,Double), y:(Int,Double)) => (x._1 - y._1, x._2 - y._2)
+  }
+
+  val countsAveSentimentScore = {
+    a:(String,(Int,Double)) => (a._1, (a._2._1, a._2._2 / a._2._1))
   }
 
   /**
