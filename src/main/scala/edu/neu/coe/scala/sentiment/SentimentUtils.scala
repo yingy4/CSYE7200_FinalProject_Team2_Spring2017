@@ -102,7 +102,7 @@ object SentimentUtils {
   def detectSentimentScore(message: String): Double = {
 
     RedwoodConfiguration.empty().capture(System.err).apply()
-    RedwoodConfiguration.empty().capture(System.out).apply()
+    //RedwoodConfiguration.empty().capture(System.out).apply()
 
 
     val pipeline = new StanfordCoreNLP(nlpProps)

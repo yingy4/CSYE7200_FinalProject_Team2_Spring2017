@@ -14,6 +14,12 @@ import twitter4j._
   */
 object Usecases {
 
+
+  System.setProperty("twitter4j.oauth.consumerKey", TwitterClient.ConsumerKey)
+  System.setProperty("twitter4j.oauth.consumerSecret", TwitterClient.ConsumerSecret)
+  System.setProperty("twitter4j.oauth.accessToken", TwitterClient.AccessToken)
+  System.setProperty("twitter4j.oauth.accessTokenSecret", TwitterClient.AccessSecret)
+
   /**
     *
     * @param ConsumerKey    twitter oauth consumerKey
@@ -37,10 +43,7 @@ object Usecases {
     // all CPU cores and one-second batches of data
     val ssc = new StreamingContext(sc, Seconds(1))
 
-    System.setProperty("twitter4j.oauth.consumerKey", ConsumerKey)
-    System.setProperty("twitter4j.oauth.consumerSecret", ConsumerSecret)
-    System.setProperty("twitter4j.oauth.accessToken", AccessToken)
-    System.setProperty("twitter4j.oauth.accessTokenSecret", AccessSecret)
+
 
     // create a DStream from Twitter using our streaming context
     val tweets = TwitterUtils.createStream(ssc, None)
@@ -110,20 +113,31 @@ object Usecases {
     a:(String,(Int,Double)) => (a._1, (a._2._1, a._2._2 / a._2._1))
   }
 
-
+/*
   val getLocationAndSentiment = {
-    status:Status => (matchLocation(status.getGeoLocation), SentimentUtils.detectSentimentScore(status.getText()))
+    status:Status => (status.getGeoLocation match {
+      case g:GeoLocation => matchLocation(g)
+      case null => "No Geo info"
+    }, SentimentUtils.detectSentimentScore(status.getText()))
+  }
+*/
+  val getLocationAndSentiment = {
+    status:Status => (status.getUser.getLocation match {
+      case g:String => g
+      case null => "null"
+    }, SentimentUtils.detectSentimentScore(status.getText()))
   }
 
 
   def matchLocation(g:GeoLocation):String = g match {
     case g if nearLocation(g,40.730610, -73.935242)  => "New York City"
-    case _ => "Others"
+    case _ => "Other Location"
   }
 
   def nearLocation(g:GeoLocation,latitude: Double,longitude: Double) = {
-    if ((g.getLatitude < latitude + 10) && (g.getLatitude > latitude - 10) &&
-      (g.getLongitude < longitude + 10) && (g.getLongitude > longitude - 10)
+    println(g)
+    if ((math.abs(g.getLatitude - latitude) < 10) &&
+      (math.abs(g.getLongitude - longitude) < 10)
     ) true else false
   }
 
@@ -171,8 +185,9 @@ object Usecases {
     *                       locations over a 5 minute window.
     *                       by Yuan Ying, Apr. 12
     */
-  def popularLocations(ConsumerKey: String, ConsumerSecret: String, AccessToken: String, AccessSecret: String): Unit = {
+  //def popularLocations(ConsumerKey: String, ConsumerSecret: String, AccessToken: String, AccessSecret: String): Unit = {
 
+  def popularLocations(): Unit = {
     // set the log level to only print errors
     Logger.getLogger("org").setLevel(Level.ERROR)
 
@@ -183,10 +198,13 @@ object Usecases {
     // all CPU cores and one-second batches of data
     val ssc = new StreamingContext(sc, Seconds(1))
 
-    System.setProperty("twitter4j.oauth.consumerKey", ConsumerKey)
-    System.setProperty("twitter4j.oauth.consumerSecret", ConsumerSecret)
-    System.setProperty("twitter4j.oauth.accessToken", AccessToken)
-    System.setProperty("twitter4j.oauth.accessTokenSecret", AccessSecret)
+
+    val a = Array.ofDim[Double](2, 2)
+    a(0)(0) = -180
+    a(0)(1) = -90
+    a(1)(0) = 180
+    a(1)(1) = 90
+    val f:FilterQuery = new FilterQuery().locations(Array(-180.0,-90.0,180.0,90.0))
 
     // create a DStream from Twitter using our streaming context
     val tweets = TwitterUtils.createStream(ssc, None)
@@ -194,7 +212,12 @@ object Usecases {
     // extract the text of each status update into DStreams using map()
     //val statuses = tweets.map(status => status.getText())
     //val entweets = tweets.filter(s => s.getLang == "en")
-    val entweets = tweets.filter(filterLanguage)
+    val entweets = tweets.filter(filterLanguage).filter(
+      status => Option(status.getGeoLocation) match {
+        case Some(_) => true
+        case None => true
+      })
+
     //val statuses = entweets.map(status => (status.getText(), SentimentUtils.detectSentimentScore(status.getText())))
     val statuses = entweets.map(getLocationAndSentiment)
 
@@ -209,7 +232,7 @@ object Usecases {
     val hashtagKeyValues = statuses.map(addCountToHashTags)
 
     // count them up over a 5 minute window sliding every one second
-    val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow(plusForTwo, minusForTwo, Seconds(600), Seconds(1))
+    val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow(plusForTwo, minusForTwo, Seconds(36000), Seconds(1))
     //  You will often see this written in the following shorthand:
     //val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow( _ + _, _ -_, Seconds(300), Seconds(1))
 
