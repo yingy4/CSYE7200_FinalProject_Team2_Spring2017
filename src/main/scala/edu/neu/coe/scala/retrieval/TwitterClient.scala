@@ -31,7 +31,7 @@ object TwitterClient {
   def getFromSearchApiByKeyword(k: String): InputStream = {
     val consumer = new CommonsHttpOAuthConsumer(ConsumerKey, ConsumerSecret)
     consumer.setTokenWithSecret(AccessToken, AccessSecret)
-    val request = new HttpGet("https://api.twitter.com/1.1/search/tweets.json?q=Boston%20weather")
+    val request = new HttpGet("https://api.twitter.com/1.1/search/tweets.json?q=Boston%20weather&count=90")
     consumer.sign(request)
     val client = HttpClientBuilder.create().build()
     val response = client.execute(request)
@@ -55,6 +55,7 @@ object TwitterClient {
     new PrintWriter("searchapi_sample1.json") { write(tweet_string); close }
 
 //    sparkTestRun
-    Usecases.popularHashTags(ConsumerKey, ConsumerSecret, AccessToken, AccessSecret)
+    //Usecases.popularHashTags(ConsumerKey, ConsumerSecret, AccessToken, AccessSecret)
+    Usecases.popularLocations()
   }
 }
