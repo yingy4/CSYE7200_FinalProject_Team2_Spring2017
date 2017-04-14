@@ -122,22 +122,30 @@ object Usecases {
   }
 */
   val getLocationAndSentiment = {
-    status:Status => (status.getUser.getLocation match {
-      case g:String => g
+    status:Status => (status.getGeoLocation match {
+      case g:GeoLocation => matchLocation(g)
       case null => "null"
     }, SentimentUtils.detectSentimentScore(status.getText()))
   }
 
 
   def matchLocation(g:GeoLocation):String = g match {
-    case g if nearLocation(g,40.730610, -73.935242)  => "New York City"
+    case g if nearLocation(g,40.730610, -73.935242)  => "New York City, NY, USA"
+    case g if nearLocation(g,34.052235, -118.243683)  => "Los Angeles, CA, USA"
+    case g if nearLocation(g,47.608013, -122.335167)  => "Seattle, WA, USA"
+    case g if nearLocation(g,29.761993, -95.366302)  => "Houston, TX, USA"
+    case g if nearLocation(g,25.761681, -80.191788)  =>  "Miami, FL, USA"
+    case g if nearLocation(g,51.515419, -0.141099)  => "London, UK"
+    case g if nearLocation(g,43.653908, -79.384293)  => "Toronto, ON, Canada"
+    case g if nearLocation(g,-33.865143, 151.209900)  => "Sydney, NSW, Australia"
+    case g if nearLocation(g,19.073212, 72.854195)  => "Mumbai, India"
     case _ => "Other Location"
   }
 
   def nearLocation(g:GeoLocation,latitude: Double,longitude: Double) = {
     println(g)
-    if ((math.abs(g.getLatitude - latitude) < 10) &&
-      (math.abs(g.getLongitude - longitude) < 10)
+    if ((math.abs(g.getLatitude - latitude) < 2) &&
+      (math.abs(g.getLongitude - longitude) < 2)
     ) true else false
   }
 
@@ -199,13 +207,6 @@ object Usecases {
     val ssc = new StreamingContext(sc, Seconds(1))
 
 
-    val a = Array.ofDim[Double](2, 2)
-    a(0)(0) = -180
-    a(0)(1) = -90
-    a(1)(0) = 180
-    a(1)(1) = 90
-    val f:FilterQuery = new FilterQuery().locations(Array(-180.0,-90.0,180.0,90.0))
-
     // create a DStream from Twitter using our streaming context
     val tweets = TwitterUtils.createStream(ssc, None)
 
@@ -215,7 +216,7 @@ object Usecases {
     val entweets = tweets.filter(filterLanguage).filter(
       status => Option(status.getGeoLocation) match {
         case Some(_) => true
-        case None => true
+        case None => false
       })
 
     //val statuses = entweets.map(status => (status.getText(), SentimentUtils.detectSentimentScore(status.getText())))
