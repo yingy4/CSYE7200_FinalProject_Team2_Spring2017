@@ -13,7 +13,7 @@ import scala.util._
   */
 class SentimentUtilsSpec extends FlatSpec with Matchers {
 
-  behavior of "SentimentUtils"
+  behavior of "detectSentiment"
 
 
   it should "detect a very positive sentiment" in {
@@ -80,6 +80,12 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
     }
     rs.head.statuses.map(x => SentimentUtils.detectSentiment(x.text)).size shouldBe rs.head.search_metadata.count
     source.close()
+  }
+
+  behavior of "detectSentimentScore"
+
+  it should "detect 3.0" in {
+    SentimentUtils.detectSentimentScore("It was a very nice experience.") shouldBe 3.0
   }
 
 }

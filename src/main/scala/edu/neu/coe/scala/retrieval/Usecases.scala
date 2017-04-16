@@ -113,19 +113,18 @@ object Usecases {
     a:(String,(Int,Double)) => (a._1, (a._2._1, a._2._2 / a._2._1))
   }
 
-/*
-  val getLocationAndSentiment = {
-    status:Status => (status.getGeoLocation match {
-      case g:GeoLocation => matchLocation(g)
-      case null => "No Geo info"
-    }, SentimentUtils.detectSentimentScore(status.getText()))
-  }
-*/
   val getLocationAndSentiment = {
     status:Status => (status.getGeoLocation match {
       case g:GeoLocation => matchLocation(g)
       case null => "null"
     }, SentimentUtils.detectSentimentScore(status.getText()))
+  }
+
+  val filterContainGeoLocation = {
+    status:Status => Option(status.getGeoLocation) match {
+      case Some(_) => true
+      case None => false
+    }
   }
 
 
@@ -143,7 +142,7 @@ object Usecases {
   }
 
   def nearLocation(g:GeoLocation,latitude: Double,longitude: Double) = {
-    println(g)
+    //println(g)
     if ((math.abs(g.getLatitude - latitude) < 2) &&
       (math.abs(g.getLongitude - longitude) < 2)
     ) true else false
@@ -184,11 +183,6 @@ object Usecases {
 
   /**
     *
-    * @param ConsumerKey    twitter oauth consumerKey
-    * @param ConsumerSecret twitter oauth ConsumerSecret
-    * @param AccessToken    twitter oauth AccessToken
-    * @param AccessSecret   twitter oauth AccessSecret
-    *
     *                       Listens to a stream of Tweets and keeps track of the most popular
     *                       locations over a 5 minute window.
     *                       by Yuan Ying, Apr. 12
@@ -213,11 +207,7 @@ object Usecases {
     // extract the text of each status update into DStreams using map()
     //val statuses = tweets.map(status => status.getText())
     //val entweets = tweets.filter(s => s.getLang == "en")
-    val entweets = tweets.filter(filterLanguage).filter(
-      status => Option(status.getGeoLocation) match {
-        case Some(_) => true
-        case None => false
-      })
+    val entweets = tweets.filter(filterLanguage).filter(filterContainGeoLocation)
 
     //val statuses = entweets.map(status => (status.getText(), SentimentUtils.detectSentimentScore(status.getText())))
     val statuses = entweets.map(getLocationAndSentiment)

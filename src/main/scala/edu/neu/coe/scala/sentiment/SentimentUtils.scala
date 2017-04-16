@@ -145,6 +145,7 @@ object SentimentUtils {
       weightedSentiment = -1
     }
 
+    RedwoodConfiguration.current().clear().apply()
 
     //println("debug: main: " + mainSentiment)
     //println("debug: avg: " + averageSentiment)

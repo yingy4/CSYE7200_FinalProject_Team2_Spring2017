@@ -39,19 +39,21 @@ class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
     filteredList.head.getText shouldBe "test1 #ABC"
   }
 
-/*
+
   behavior of "getTextAndSentiment"
 
+  val mappedList1 = mockedList.map(Usecases.getTextAndSentiment)
+
   it should "match size" in {
-    (mockedStatus1.getText _).expects().returning("test1 #ABC").anyNumberOfTimes()
-    val mappedList1 = mockedList.map(Usecases.getTextAndSentiment)
+    //(mockedStatus1.getText _).expects().returning("test1 #ABC").anyNumberOfTimes()
+
     mappedList1.length shouldBe mockedList.length
   }
-*/
+
 
   behavior of "getHashTags"
 
-  val mappedList2 = mockedList.map(s => (s.getText,1.0)).map(Usecases.getHashTags)
+  val mappedList2 = mappedList1.map(Usecases.getHashTags)
 
   it should "match size" in {
     mappedList2.length shouldBe mockedList.length
@@ -74,7 +76,7 @@ class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
   }
 
   it should "match context" in {
-    mappedList3.head shouldBe ("#ABC",(1,1.0))
+    mappedList3.head shouldBe ("#ABC",(1,2.0))
   }
 
 
@@ -97,5 +99,75 @@ class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
     Usecases.countsAveSentimentScore("#ABC",(2,6.0)) shouldBe ("#ABC",(2,3.0))
   }
 
+  val mockedGeoLocation = mock[GeoLocation]
+  val mockedStatus3 = mock[Status]
+
+  behavior of "filterContainGeoLocation"
+
+  (mockedStatus3.getLang _).expects().returning("en").anyNumberOfTimes()
+  (mockedStatus3.getText _).expects().returning("test3").anyNumberOfTimes()
+  (mockedGeoLocation.getLatitude _).expects().returning(41.730610).anyNumberOfTimes()
+  (mockedGeoLocation.getLongitude _).expects().returning(-72.935242).anyNumberOfTimes()
+  (mockedStatus1.getGeoLocation _).expects().returning(mockedGeoLocation).anyNumberOfTimes()
+  (mockedStatus3.getGeoLocation _).expects().returning(null).anyNumberOfTimes()
+
+  val mockedList2 = List(mockedStatus1,mockedStatus3)
+
+  val filteredList2 = mockedList2.filter(Usecases.filterLanguage)
+
+  val filteredList3 = filteredList2.filter(Usecases.filterContainGeoLocation)
+
+  it should "match size" in {
+    filteredList2.size shouldBe 2
+    filteredList3.size shouldBe 1
+  }
+
+
+  behavior of "nearLocation"
+
+  it should "return true for nyc location" in {
+    (mockedGeoLocation.getLatitude _).expects().returning(41.730610).anyNumberOfTimes()
+    (mockedGeoLocation.getLongitude _).expects().returning(-72.935242).anyNumberOfTimes()
+    Usecases.nearLocation(mockedGeoLocation,40.730610, -73.935242) shouldBe true
+  }
+
+  it should "return false for la location" in {
+    (mockedGeoLocation.getLatitude _).expects().returning(41.730610).anyNumberOfTimes()
+    (mockedGeoLocation.getLongitude _).expects().returning(-72.935242).anyNumberOfTimes()
+    Usecases.nearLocation(mockedGeoLocation,34.052235, -118.243683) shouldBe false
+  }
+
+  behavior of "matchLocation"
+
+  it should "match New York City, NY, USA" in {
+    (mockedGeoLocation.getLatitude _).expects().returning(41.730610).anyNumberOfTimes()
+    (mockedGeoLocation.getLongitude _).expects().returning(-72.935242).anyNumberOfTimes()
+    Usecases.matchLocation(mockedGeoLocation) shouldBe "New York City, NY, USA"
+  }
+
+  it should "match Other Location" in {
+    (mockedGeoLocation.getLatitude _).expects().returning(1).anyNumberOfTimes()
+    (mockedGeoLocation.getLongitude _).expects().returning(1).anyNumberOfTimes()
+    Usecases.matchLocation(mockedGeoLocation) shouldBe "Other Location"
+  }
+
+  behavior of "getLocationAndSentiment"
+
+  (mockedGeoLocation.getLatitude _).expects().returning(41.730610).anyNumberOfTimes()
+  (mockedGeoLocation.getLongitude _).expects().returning(-72.935242).anyNumberOfTimes()
+  (mockedStatus1.getText _).expects().returning("test1 #ABC").anyNumberOfTimes()
+  (mockedStatus1.getGeoLocation _).expects().returning(mockedGeoLocation).anyNumberOfTimes()
+  val mappedList4 = filteredList3.map(Usecases.getLocationAndSentiment)
+
+  it should "match size" in {
+    mappedList4.size shouldBe filteredList3.size
+  }
+
+  it should "match context" in {
+    //println(mappedList4.head._1)
+    //println(mappedList4.head._2)
+    mappedList4.head._1 shouldBe "New York City, NY, USA"
+    mappedList4.head._2 shouldBe 2.0
+  }
 
 }
