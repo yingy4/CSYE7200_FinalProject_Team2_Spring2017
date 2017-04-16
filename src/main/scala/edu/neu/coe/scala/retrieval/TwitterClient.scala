@@ -56,7 +56,9 @@ object TwitterClient {
     new PrintWriter("searchapi_sample1.json") { write(tweet_string); close }
 */
 //    sparkTestRun
+    //Usecases.popularHashTags("Trump")
     //Usecases.popularHashTags()
+    //Usecases.popularLocations("London")
     Usecases.popularLocations()
   }
 }

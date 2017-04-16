@@ -26,7 +26,7 @@ object Usecases {
     *                       hashtags over a 5 minute window.
     *                       by Wei Huang, Mar. 28
     */
-  def popularHashTags(): Unit = {
+  def popularHashTags(k: String = ""): Unit = {
 
     // set the log level to only print errors
     Logger.getLogger("org").setLevel(Level.ERROR)
@@ -41,7 +41,10 @@ object Usecases {
 
 
     // create a DStream from Twitter using our streaming context
-    val tweets = TwitterUtils.createStream(ssc, None)
+    val tweets = k match {
+      case "" => TwitterUtils.createStream(ssc, None)
+      case _  => TwitterUtils.createStream(ssc, None,Seq(k))
+    }
 
     // extract the text of each status update into DStreams using map()
     //val statuses = tweets.map(status => status.getText())
@@ -184,7 +187,7 @@ object Usecases {
     */
   //def popularLocations(ConsumerKey: String, ConsumerSecret: String, AccessToken: String, AccessSecret: String): Unit = {
 
-  def popularLocations(): Unit = {
+  def popularLocations(k: String = ""): Unit = {
     // set the log level to only print errors
     Logger.getLogger("org").setLevel(Level.ERROR)
 
@@ -197,7 +200,10 @@ object Usecases {
 
 
     // create a DStream from Twitter using our streaming context
-    val tweets = TwitterUtils.createStream(ssc, None)
+    val tweets = k match {
+      case "" => TwitterUtils.createStream(ssc, None)
+      case _  => TwitterUtils.createStream(ssc, None,Seq(k))
+    }
 
     // extract the text of each status update into DStreams using map()
     //val statuses = tweets.map(status => status.getText())
