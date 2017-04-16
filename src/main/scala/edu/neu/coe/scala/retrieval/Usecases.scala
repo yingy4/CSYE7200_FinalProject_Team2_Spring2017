@@ -22,16 +22,11 @@ object Usecases {
 
   /**
     *
-    * @param ConsumerKey    twitter oauth consumerKey
-    * @param ConsumerSecret twitter oauth ConsumerSecret
-    * @param AccessToken    twitter oauth AccessToken
-    * @param AccessSecret   twitter oauth AccessSecret
-    *
     *                       Listens to a stream of Tweets and keeps track of the most popular
     *                       hashtags over a 5 minute window.
     *                       by Wei Huang, Mar. 28
     */
-  def popularHashTags(ConsumerKey: String, ConsumerSecret: String, AccessToken: String, AccessSecret: String): Unit = {
+  def popularHashTags(): Unit = {
 
     // set the log level to only print errors
     Logger.getLogger("org").setLevel(Level.ERROR)

@@ -28,10 +28,11 @@ object TwitterClient {
   val AccessToken = "708481334482698240-QTn0EaokD6IVWFH0ZUhzlW48rdl42Qt"
   val AccessSecret = "7XfA0v9j0utKeUuf44n2YEB3AtzqVlMM0ue4IrJC0v2cK"
 
-  def getFromSearchApiByKeyword(k: String): InputStream = {
+  def getFromSearchApiByKeyword(k: String, count: Int = 90): InputStream = {
     val consumer = new CommonsHttpOAuthConsumer(ConsumerKey, ConsumerSecret)
     consumer.setTokenWithSecret(AccessToken, AccessSecret)
-    val request = new HttpGet("https://api.twitter.com/1.1/search/tweets.json?q=Boston%20weather&count=90")
+    val url = "https://api.twitter.com/1.1/search/tweets.json?q=" + k + "&count=" + count
+    val request = new HttpGet(url)
     consumer.sign(request)
     val client = HttpClientBuilder.create().build()
     val response = client.execute(request)
@@ -39,7 +40,7 @@ object TwitterClient {
   }
 
   def main(args: Array[String]) {
-
+/*
     val consumer = new CommonsHttpOAuthConsumer(ConsumerKey, ConsumerSecret)
     consumer.setTokenWithSecret(AccessToken, AccessSecret)
     val request = new HttpGet("https://api.twitter.com/1.1/search/tweets.json?q=Northeastern%20University")
@@ -53,9 +54,9 @@ object TwitterClient {
     println(tweet_string)
 
     new PrintWriter("searchapi_sample1.json") { write(tweet_string); close }
-
+*/
 //    sparkTestRun
-    //Usecases.popularHashTags(ConsumerKey, ConsumerSecret, AccessToken, AccessSecret)
+    //Usecases.popularHashTags()
     Usecases.popularLocations()
   }
 }

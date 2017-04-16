@@ -18,7 +18,7 @@ class TwitterClientSpec extends FlatSpec with Matchers{
   it should "only has one response" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("abc"))
+    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("Trump"))
     val ts = for (t <- ingester(source).toSeq) yield t
     ts.size shouldBe 1
     source.close()
@@ -27,7 +27,7 @@ class TwitterClientSpec extends FlatSpec with Matchers{
   it should "match pattern" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("abc"))
+    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("Trump"))
     val ts = for (t <- ingester(source).toSeq) yield t
     ts should matchPattern { case Stream(Success(_)) => }
     source.close()
@@ -36,7 +36,7 @@ class TwitterClientSpec extends FlatSpec with Matchers{
   it should "contains Tweet" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("abc"))
+    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("Trump"))
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = for (a <- rts) yield a match {
       case Success(x) => x
@@ -49,7 +49,7 @@ class TwitterClientSpec extends FlatSpec with Matchers{
   it should "match the size with count field" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("abc"))
+    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("Trump"))
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = for (a <- rts) yield a match {
       case Success(x) => x

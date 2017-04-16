@@ -52,7 +52,7 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
   it should "work for search api" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("abc"))
+    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("Trump",10))
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = for (a <- rts) yield a match {
       case Success(x) => x
@@ -72,7 +72,7 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
   it should "work for search api with muti tweets " in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("abc"))
+    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("Trump",10))
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = for (a <- rts) yield a match {
       case Success(x) => x
