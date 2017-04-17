@@ -78,7 +78,7 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
       case Success(x) => x
       case Failure(e) => throw new Exception("err:"+e)
     }
-    rs.head.statuses.map(x => SentimentUtils.detectSentiment(x.text)).size shouldBe rs.head.search_metadata.count
+    rs.head.statuses.map(x => SentimentUtils.detectSentiment(x.text)).size shouldBe rs.head.statuses.size
     source.close()
   }
 

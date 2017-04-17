@@ -46,6 +46,8 @@ class TwitterClientSpec extends FlatSpec with Matchers{
     source.close()
   }
 
+  //This unit test may not match because that count in metadata is the input parameter, however result may smaller than it.
+/*
   it should "match the size with count field" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
@@ -58,6 +60,6 @@ class TwitterClientSpec extends FlatSpec with Matchers{
     rs.head.statuses.size shouldBe rs.head.search_metadata.count
     source.close()
   }
-
+*/
 
 }
