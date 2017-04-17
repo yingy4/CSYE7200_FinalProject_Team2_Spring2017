@@ -14,7 +14,7 @@ import org.apache.spark.SparkContext._
 import org.apache.log4j._
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.twitter._
-
+import java.util.Calendar
 import edu.neu.coe.scala.sentiment._
 
 /**
@@ -29,14 +29,22 @@ object TwitterClient {
   val AccessSecret = "7XfA0v9j0utKeUuf44n2YEB3AtzqVlMM0ue4IrJC0v2cK"
 
   def getFromSearchApiByKeyword(k: String, count: Int = 90): InputStream = {
+    val tweet = new StringBuilder()
+    val now = Calendar.getInstance()
+    val today = now.get(Calendar.DAY_OF_MONTH)
+    var i = 0
+    for( i <- today-7 to today+1) {
     val consumer = new CommonsHttpOAuthConsumer(ConsumerKey, ConsumerSecret)
     consumer.setTokenWithSecret(AccessToken, AccessSecret)
-    val url = "https://api.twitter.com/1.1/search/tweets.json?q=" + k + "&count=" + count
+    val url = "https://api.twitter.com/1.1/search/tweets.json?q=" + k + "&count=" + count + "&until=2017-04-" + today
     val request = new HttpGet(url)
     consumer.sign(request)
     val client = HttpClientBuilder.create().build()
     val response = client.execute(request)
-    response.getEntity().getContent()
+   // response.getEntity().getContent()
+    var tweet_string = IOUtils.toString(response.getEntity().getContent())
+    tweet ++= tweet_string
+    }
   }
 
   def main(args: Array[String]) {
