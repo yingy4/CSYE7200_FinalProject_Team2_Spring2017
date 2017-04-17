@@ -1,11 +1,15 @@
 package edu.neu.coe.scala.retrieval
 
+import edu.neu.coe.scala.ingest.{Ingest, Response}
 import edu.neu.coe.scala.sentiment.SentimentUtils
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.streaming.twitter.TwitterUtils
 import twitter4j._
+
+import scala.io.{Codec, Source}
+import scala.util.{Failure, Success}
 
 /**
   * Usecases
@@ -241,5 +245,32 @@ object Usecases {
     ssc.checkpoint("testdata/checkpoint/")
     ssc.start()
     ssc.awaitTermination()
+  }
+
+
+  def calcSentimentFromFile(k: String = "", file: String) = {
+    val ingester = new Ingest[Response]()
+    implicit val codec = Codec.UTF8
+    val source = Source.fromFile(file)
+    val rts = for (t <- ingester(source).toSeq) yield t
+    val rs = for (a <- rts) yield a match {
+      case Success(x) => x
+      case Failure(e) => throw new Exception("err:"+e)
+    }
+    val tss = rs.map(r => r.statuses)
+    for (t <- tss) println(t.size)
+
+    val ts = tss.flatten
+
+    //val fts = ts.filter(s => s.text.contains("Boston"))
+    val fts = ts.filter(s => true)
+
+    println(fts.size)
+
+    val sts = fts.map(s => SentimentUtils.detectSentimentScore(s.text))
+
+    println(sts.sum/sts.size)
+
+    ts.size
   }
 }
