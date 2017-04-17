@@ -34,7 +34,7 @@ object Response {
   trait IngestibleResponse extends Ingestible[Response] {
 
     def fromString(w: String): Try[Response] = {
-      println("w="+w.parseJson.prettyPrint)
+      //println("w="+w.parseJson.prettyPrint)
       import TweetProtocol._
       Try(w.parseJson.convertTo[Response])
     }
@@ -51,7 +51,7 @@ object Tweet {
   trait IngestibleTweet extends Ingestible[Tweet] {
 
     def fromString(w: String): Try[Tweet] = {
-      println("w="+w.parseJson.prettyPrint)
+      //println("w="+w.parseJson.prettyPrint)
       import TweetProtocol._
       Try(w.parseJson.convertTo[Tweet])
     }

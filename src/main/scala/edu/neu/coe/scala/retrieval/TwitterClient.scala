@@ -28,23 +28,24 @@ object TwitterClient {
   val AccessToken = "708481334482698240-QTn0EaokD6IVWFH0ZUhzlW48rdl42Qt"
   val AccessSecret = "7XfA0v9j0utKeUuf44n2YEB3AtzqVlMM0ue4IrJC0v2cK"
 
-  def getFromSearchApiByKeyword(k: String, count: Int = 90): InputStream = {
+  def getFromSearchApiByKeyword(k: String, count: Int = 90): String = {
     val tweet = new StringBuilder()
     val now = Calendar.getInstance()
     val today = now.get(Calendar.DAY_OF_MONTH)
-    var i = 0
-    for( i <- today-7 to today+1) {
+    //var i = 0
+    for(i <- today-6 to today) {
     val consumer = new CommonsHttpOAuthConsumer(ConsumerKey, ConsumerSecret)
     consumer.setTokenWithSecret(AccessToken, AccessSecret)
-    val url = "https://api.twitter.com/1.1/search/tweets.json?q=" + k + "&count=" + count + "&until=2017-04-" + today
+    val url = "https://api.twitter.com/1.1/search/tweets.json?q=" + k + "&count=" + count + "&until=2017-04-" + (i+today)
     val request = new HttpGet(url)
     consumer.sign(request)
     val client = HttpClientBuilder.create().build()
     val response = client.execute(request)
    // response.getEntity().getContent()
     var tweet_string = IOUtils.toString(response.getEntity().getContent())
-    tweet ++= tweet_string
+    tweet ++= tweet_string + "\n"
     }
+    tweet.toString()
   }
 
   def main(args: Array[String]) {

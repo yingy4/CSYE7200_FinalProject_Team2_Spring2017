@@ -15,28 +15,28 @@ class TwitterClientSpec extends FlatSpec with Matchers{
 
   behavior of "Tweet convert from api"
 
-  it should "only has one response" in {
+  it should "has 7 responses" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("Trump"))
+    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Trump",5))
     val ts = for (t <- ingester(source).toSeq) yield t
-    ts.size shouldBe 1
+    ts.size shouldBe 7
     source.close()
   }
 
   it should "match pattern" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("Trump"))
+    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Trump",5))
     val ts = for (t <- ingester(source).toSeq) yield t
-    ts should matchPattern { case Stream(Success(_)) => }
+    ts should matchPattern { case Stream(Success(_),Success(_),Success(_),Success(_),Success(_),Success(_),Success(_)) => }
     source.close()
   }
 
   it should "contains Tweet" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("Trump"))
+    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Trump",5))
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = for (a <- rts) yield a match {
       case Success(x) => x
@@ -49,7 +49,7 @@ class TwitterClientSpec extends FlatSpec with Matchers{
   it should "match the size with count field" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromInputStream(TwitterClient.getFromSearchApiByKeyword("Trump"))
+    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Trump",5))
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = for (a <- rts) yield a match {
       case Success(x) => x
