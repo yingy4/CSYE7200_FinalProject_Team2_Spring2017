@@ -142,7 +142,7 @@ class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
   it should "match New York City, NY, USA" in {
     (mockedGeoLocation.getLatitude _).expects().returning(41.730610).anyNumberOfTimes()
     (mockedGeoLocation.getLongitude _).expects().returning(-72.935242).anyNumberOfTimes()
-    Usecases.matchLocation(mockedGeoLocation) shouldBe "New York City, NY, USA"
+    Usecases.matchLocation(mockedGeoLocation) shouldBe "New York City, NY, USA,40.730610, -73.935242"
   }
 
   it should "match Other Location" in {
@@ -166,7 +166,7 @@ class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
   it should "match context" in {
     //println(mappedList4.head._1)
     //println(mappedList4.head._2)
-    mappedList4.head._1 shouldBe "New York City, NY, USA"
+    mappedList4.head._1 shouldBe "New York City, NY, USA,40.730610, -73.935242"
     mappedList4.head._2 shouldBe 2.0
   }
 

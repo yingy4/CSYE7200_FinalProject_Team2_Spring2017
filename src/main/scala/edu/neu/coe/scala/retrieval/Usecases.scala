@@ -131,15 +131,15 @@ object Usecases {
 
 
   def matchLocation(g:GeoLocation):String = g match {
-    case g if nearLocation(g,40.730610, -73.935242)  => "New York City, NY, USA"
-    case g if nearLocation(g,34.052235, -118.243683)  => "Los Angeles, CA, USA"
-    case g if nearLocation(g,47.608013, -122.335167)  => "Seattle, WA, USA"
-    case g if nearLocation(g,29.761993, -95.366302)  => "Houston, TX, USA"
-    case g if nearLocation(g,25.761681, -80.191788)  =>  "Miami, FL, USA"
-    case g if nearLocation(g,51.515419, -0.141099)  => "London, UK"
-    case g if nearLocation(g,43.653908, -79.384293)  => "Toronto, ON, Canada"
-    case g if nearLocation(g,-33.865143, 151.209900)  => "Sydney, NSW, Australia"
-    case g if nearLocation(g,19.073212, 72.854195)  => "Mumbai, India"
+    case g if nearLocation(g,40.730610, -73.935242)  => "New York City, NY, USA,40.730610, -73.935242"
+    case g if nearLocation(g,34.052235, -118.243683)  => "Los Angeles, CA, USA,34.052235, -118.243683"
+    case g if nearLocation(g,47.608013, -122.335167)  => "Seattle, WA, USA,47.608013, -122.335167"
+    case g if nearLocation(g,29.761993, -95.366302)  => "Houston, TX, USA,29.761993, -95.366302"
+    case g if nearLocation(g,25.761681, -80.191788)  =>  "Miami, FL, USA,25.761681, -80.191788"
+    case g if nearLocation(g,51.515419, -0.141099)  => "London, UK,51.515419, -0.141099"
+    case g if nearLocation(g,43.653908, -79.384293)  => "Toronto, ON, Canada,43.653908, -79.384293"
+    case g if nearLocation(g,-33.865143, 151.209900)  => "Sydney, NSW, Australia,-33.865143, 151.209900"
+    case g if nearLocation(g,19.073212, 72.854195)  => "Mumbai, India,19.073212, 72.854195"
     case _ => "Other Location"
   }
 
