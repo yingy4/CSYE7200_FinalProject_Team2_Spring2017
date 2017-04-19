@@ -14,13 +14,13 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
 
   behavior of "detectSentiment"
 
-  it should "detect a positive sentiment" in {
+  it should "work for positive string" in {
 
-    SentimentUtils.detectSentiment("It was a very nice experience.") shouldBe (SentimentUtils.POSITIVE)
+    SentimentUtils.detectSentiment("It was a nice experience.") shouldBe (SentimentUtils.POSITIVE)
 
   }
 
-  it should "work for one tweet" in {
+  it should "work for one tweet positive" in {
     val ingester = new Ingest[Tweet]()
     implicit val codec = Codec.UTF8
     val source = Source.fromFile("testdata//tweet1_POSITIVE.json")
@@ -30,6 +30,32 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
       case Failure(e) => throw new Exception("err:"+e)
     }
     SentimentUtils.detectSentiment(tweet.text) shouldBe SentimentUtils.POSITIVE
+    source.close()
+  }
+
+  it should "work for one tweet neutral" in {
+    val ingester = new Ingest[Tweet]()
+    implicit val codec = Codec.UTF8
+    val source = Source.fromFile("testdata//tweet1_NEUTRAL.json")
+    val ts = for (t <- ingester(source).toSeq) yield t
+    val tweet:Tweet = ts.head match {
+      case Success(x) => x
+      case Failure(e) => throw new Exception("err:"+e)
+    }
+    SentimentUtils.detectSentiment(tweet.text) shouldBe SentimentUtils.NEUTRAL
+    source.close()
+  }
+
+  it should "work for one tweet negative" in {
+    val ingester = new Ingest[Tweet]()
+    implicit val codec = Codec.UTF8
+    val source = Source.fromFile("testdata//tweet1_NEGATIVE.json")
+    val ts = for (t <- ingester(source).toSeq) yield t
+    val tweet:Tweet = ts.head match {
+      case Success(x) => x
+      case Failure(e) => throw new Exception("err:"+e)
+    }
+    SentimentUtils.detectSentiment(tweet.text) shouldBe SentimentUtils.NEGATIVE
     source.close()
   }
 
@@ -44,10 +70,10 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
   }
 
 
-  it should "work for search api" in {
+  it should "work for search api mock file" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Hi",2))
+    val source = Source.fromFile("testdata//sample2.json")
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = rts.flatMap(_.toOption)
     SentimentUtils.detectSentiment(rs.head.statuses.head.text) should matchPattern {
@@ -61,10 +87,10 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
     source.close()
   }
 
-  it should "work for search api with muti tweets " in {
+  it should "work for search api mock file with muti tweets" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Hi",2))
+    val source = Source.fromFile("testdata//sample3.json")
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = rts.flatMap(_.toOption)
     rs.head.statuses.map(x => SentimentUtils.detectSentiment(x.text)).size shouldBe rs.head.statuses.size
@@ -74,7 +100,15 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
   behavior of "detectSentimentScore"
 
   it should "detect 3.0" in {
-    SentimentUtils.detectSentimentScore("It was a very nice experience.") shouldBe 3.0
+    SentimentUtils.detectSentimentScore("It was a nice experience.") shouldBe 3.0
+  }
+
+  it should "detect 1.0" in {
+    SentimentUtils.detectSentimentScore("It was a bad experience.") shouldBe 1.0
+  }
+
+  it should "detect 2.0" in {
+    SentimentUtils.detectSentimentScore("It was a experience.") shouldBe 2.0
   }
 
 }

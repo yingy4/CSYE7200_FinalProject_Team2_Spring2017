@@ -13,30 +13,30 @@ import scala.util._
   */
 class TwitterClientSpec extends FlatSpec with Matchers{
 
-  behavior of "Tweet convert from api"
+  behavior of "Tweet convert from api output json file"
 
-  it should "has 7 responses" in {
+  it should "has 2 responses" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Hi",5))
+    val source = Source.fromFile("testdata//sample3.json")
     val ts = for (t <- ingester(source).toSeq) yield t
-    ts.size shouldBe 7
+    ts.size shouldBe 2
     source.close()
   }
 
   it should "match pattern" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Hi",5))
+    val source = Source.fromFile("testdata//sample3.json")
     val ts = for (t <- ingester(source).toSeq) yield t
-    ts should matchPattern { case Stream(Success(_),Success(_),Success(_),Success(_),Success(_),Success(_),Success(_)) => }
+    ts should matchPattern { case Stream(Success(_),Success(_)) => }
     source.close()
   }
 
   it should "contains Tweet" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Hi",5))
+    val source = Source.fromFile("testdata//sample3.json")
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = rts.flatMap(_.toOption)
     rs.head.statuses.head should matchPattern { case Tweet(_,_,_,_,_,_) => }

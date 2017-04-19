@@ -248,18 +248,18 @@ object Usecases {
   }
 
 
-  def calcSentimentFromSearchApi(k: String = ""): Double = {
+  def calcSentimentFromSearchApi(k: String = "", count: Int = 90): Double = {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword(k.replaceAll(" ","%20")))
+    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword(k.replaceAll(" ","%20"),count))
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = rts.flatMap(_.toOption)
     val tss = rs.map(r => r.statuses)
-    for (t <- tss) println(t.size)
+    //for (t <- tss) println(t.size)
 
     val ts = tss.flatten
 
-    println(ts.size)
+    //println(ts.size)
 
     val sts = ts.par.map(s => SentimentUtils.detectSentimentScore(s.text))
 
