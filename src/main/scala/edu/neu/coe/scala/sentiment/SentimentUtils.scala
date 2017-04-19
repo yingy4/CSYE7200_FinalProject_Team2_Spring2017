@@ -8,8 +8,6 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
 
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ListBuffer
-import edu.stanford.nlp.util.logging.RedwoodConfiguration
 
 /**
   * Created by YY on 2017/4/6.

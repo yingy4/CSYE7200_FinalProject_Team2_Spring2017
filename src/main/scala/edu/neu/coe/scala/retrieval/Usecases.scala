@@ -9,7 +9,6 @@ import org.apache.spark.streaming.twitter.TwitterUtils
 import twitter4j._
 
 import scala.io.{Codec, Source}
-import scala.util.{Failure, Success}
 
 /**
   * Usecases
