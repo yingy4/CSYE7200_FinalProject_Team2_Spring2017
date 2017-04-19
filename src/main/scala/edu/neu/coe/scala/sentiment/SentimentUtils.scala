@@ -25,59 +25,7 @@ object SentimentUtils {
   }
 
   def detectSentiment(message: String): SENTIMENT_TYPE = {
-    /*
-    val pipeline = new StanfordCoreNLP(nlpProps)
 
-    val annotation = pipeline.process(message)
-    var sentiments: ListBuffer[Double] = ListBuffer()
-    var sizes: ListBuffer[Int] = ListBuffer()
-
-    var longest = 0
-    var mainSentiment = 0
-
-    for (sentence <- annotation.get(classOf[CoreAnnotations.SentencesAnnotation])) {
-      val tree = sentence.get(classOf[SentimentCoreAnnotations.AnnotatedTree])
-      val sentiment = RNNCoreAnnotations.getPredictedClass(tree)
-      val partText = sentence.toString
-
-      if (partText.length() > longest) {
-        mainSentiment = sentiment
-        longest = partText.length()
-      }
-
-      sentiments += sentiment.toDouble
-      sizes += partText.length
-
-      println("debug: " + sentiment)
-      println("size: " + partText.length)
-
-    }
-
-    val averageSentiment:Double = {
-      if(sentiments.size > 0) sentiments.sum / sentiments.size
-      else -1
-    }
-
-    val weightedSentiments = (sentiments, sizes).zipped.map((sentiment, size) => sentiment * size)
-    var weightedSentiment = weightedSentiments.sum / (sizes.fold(0)(_ + _))
-
-    if(sentiments.size == 0) {
-      mainSentiment = -1
-      weightedSentiment = -1
-    }
-
-
-    println("debug: main: " + mainSentiment)
-    println("debug: avg: " + averageSentiment)
-    println("debug: weighted: " + weightedSentiment)
-*/
-    /*
-     0 -> very negative
-     1 -> negative
-     2 -> neutral
-     3 -> positive
-     4 -> very positive
-     */
     detectSentimentScore(message) match {
       case s if s <= 0.0 => NOT_UNDERSTOOD
       case s if s < 1.0 => VERY_NEGATIVE
@@ -104,46 +52,20 @@ object SentimentUtils {
 
     //RedwoodConfiguration.empty().capture(System.err).apply()
 
-
     val pipeline = new StanfordCoreNLP(nlpProps)
 
     val annotation = pipeline.process(message.replaceAll("[^\\p{L}\\p{N}\\p{Z}\\p{Sm}\\p{Sc}\\p{Sk}\\p{Pi}\\p{Pf}\\p{Pc}\\p{Mc}]",""))
-    var sentiments: ListBuffer[Double] = ListBuffer()
-    var sizes: ListBuffer[Int] = ListBuffer()
 
-    var longest = 0
-    var mainSentiment = 0
-
-    for (sentence <- annotation.get(classOf[CoreAnnotations.SentencesAnnotation])) {
+    val slp = for (sentence <- annotation.get(classOf[CoreAnnotations.SentencesAnnotation])) yield {
       val tree = sentence.get(classOf[SentimentCoreAnnotations.AnnotatedTree])
       val sentiment = RNNCoreAnnotations.getPredictedClass(tree)
       val partText = sentence.toString
-
-      if (partText.length() > longest) {
-        mainSentiment = sentiment
-        longest = partText.length()
-      }
-
-      sentiments += sentiment.toDouble
-      sizes += partText.length
-
-      //println("debug: " + sentiment)
-      //println("size: " + partText.length)
-
+      (sentiment.toDouble,partText.length)
     }
 
-    val averageSentiment:Double = {
-      if(sentiments.size > 0) sentiments.sum / sentiments.size
-      else -1
-    }
-
-    val weightedSentiments = (sentiments, sizes).zipped.map((sentiment, size) => sentiment * size)
-    var weightedSentiment = weightedSentiments.sum / (sizes.fold(0)(_ + _))
-
-    if(sentiments.size == 0) {
-      mainSentiment = -1
-      weightedSentiment = -1
-    }
+    val weightedSentiments = slp.unzip.zipped.map((sentiment, size) => sentiment * size)
+    val sizes = slp.unzip._2
+    val weightedSentiment = weightedSentiments.sum / sizes.sum
 
     //RedwoodConfiguration.current().clear().apply()
 
