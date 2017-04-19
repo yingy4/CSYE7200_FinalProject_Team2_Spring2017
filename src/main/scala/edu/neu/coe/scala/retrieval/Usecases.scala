@@ -248,29 +248,25 @@ object Usecases {
   }
 
 
-  def calcSentimentFromFile(k: String = "", file: String) = {
+  def calcSentimentFromSearchApi(k: String = ""): Double = {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromFile(file)
+    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword(k.replaceAll(" ","%20")))
     val rts = for (t <- ingester(source).toSeq) yield t
-    val rs = for (a <- rts) yield a match {
-      case Success(x) => x
-      case Failure(e) => throw new Exception("err:"+e)
-    }
+    val rs = rts.flatMap(_.toOption)
     val tss = rs.map(r => r.statuses)
     for (t <- tss) println(t.size)
 
     val ts = tss.flatten
 
-    //val fts = ts.filter(s => s.text.contains("Boston"))
-    val fts = ts.filter(s => true)
+    println(ts.size)
 
-    println(fts.size)
-
-    val sts = fts.map(s => SentimentUtils.detectSentimentScore(s.text))
+    val sts = ts.par.map(s => SentimentUtils.detectSentimentScore(s.text))
 
     println(sts.sum/sts.size)
 
-    ts.size
+    sts.sum/sts.size
   }
+
+  def compareSentiment(a:Double,b:Double) :Boolean = if (a > b) true else false
 }

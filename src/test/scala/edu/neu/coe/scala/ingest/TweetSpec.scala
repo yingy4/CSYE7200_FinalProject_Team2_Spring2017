@@ -69,10 +69,7 @@ class TweetSpec extends FlatSpec with Matchers{
     implicit val codec = Codec.UTF8
     val source = Source.fromFile("testdata//tweet3.json")
     val tts = for (t <- ingester(source).toSeq) yield t
-    val ts = for (a <- tts) yield a match {
-      case Success(x) => x
-      case Failure(e) => throw new Exception("err:"+e)
-    }
+    val ts = tts.flatMap(_.toOption)
     ts.map(x => x.retweet_count).toList shouldBe List(3746, 2301, 2547)
     ts.map(x => x.user.id).toList shouldBe List(25073877, 25073877, 25073877)
     ts.map(x => x.entities.hashtags).map(y => y.map(z => z.text)) shouldBe List(List("MAGA","TrumpPence16"),Nil,Nil)

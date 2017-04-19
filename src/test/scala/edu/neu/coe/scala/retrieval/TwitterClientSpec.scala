@@ -18,7 +18,7 @@ class TwitterClientSpec extends FlatSpec with Matchers{
   it should "has 7 responses" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Trump",5))
+    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Hi",5))
     val ts = for (t <- ingester(source).toSeq) yield t
     ts.size shouldBe 7
     source.close()
@@ -27,7 +27,7 @@ class TwitterClientSpec extends FlatSpec with Matchers{
   it should "match pattern" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Trump",5))
+    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Hi",5))
     val ts = for (t <- ingester(source).toSeq) yield t
     ts should matchPattern { case Stream(Success(_),Success(_),Success(_),Success(_),Success(_),Success(_),Success(_)) => }
     source.close()
@@ -36,12 +36,9 @@ class TwitterClientSpec extends FlatSpec with Matchers{
   it should "contains Tweet" in {
     val ingester = new Ingest[Response]()
     implicit val codec = Codec.UTF8
-    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Trump",5))
+    val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Hi",5))
     val rts = for (t <- ingester(source).toSeq) yield t
-    val rs = for (a <- rts) yield a match {
-      case Success(x) => x
-      case Failure(e) => throw new Exception("err:"+e)
-    }
+    val rs = rts.flatMap(_.toOption)
     rs.head.statuses.head should matchPattern { case Tweet(_,_,_,_,_,_) => }
     source.close()
   }
@@ -53,10 +50,7 @@ class TwitterClientSpec extends FlatSpec with Matchers{
     implicit val codec = Codec.UTF8
     val source = Source.fromString(TwitterClient.getFromSearchApiByKeyword("Trump",5))
     val rts = for (t <- ingester(source).toSeq) yield t
-    val rs = for (a <- rts) yield a match {
-      case Success(x) => x
-      case Failure(e) => throw new Exception("err:"+e)
-    }
+    val rs = rts.flatMap(_.toOption)
     rs.head.statuses.size shouldBe rs.head.search_metadata.count
     source.close()
   }

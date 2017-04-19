@@ -170,10 +170,17 @@ class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
     mappedList4.head._2 shouldBe 2.0
   }
 
-  behavior of "calcSentimentFromFile"
+  behavior of "compareSentiment"
 
   it should "work" in {
-    Usecases.calcSentimentFromFile(null,"testdata//sample3.json") shouldBe 20
+    Usecases.compareSentiment(1.0,2.0) shouldBe false
+    Usecases.compareSentiment(3.0,2.0) shouldBe true
+  }
+
+  behavior of "calcSentimentFromSearchApi"
+
+  it should "work with Boston" in {
+    Usecases.calcSentimentFromSearchApi("Boston weather") shouldBe 2.5 +- 2.5
   }
 
 
