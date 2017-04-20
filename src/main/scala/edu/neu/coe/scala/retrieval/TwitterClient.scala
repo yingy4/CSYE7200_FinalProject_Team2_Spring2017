@@ -50,11 +50,6 @@ object TwitterClient {
         case _ => println("Invalid input. Please refer to README.md in our repo for input parameter.")
       }
     }
-    //Usecases.popularHashTags("Trump")
-    //Usecases.popularHashTags()
-    //Usecases.popularLocations("London")
-    //Usecases.popularLocations()
-
   }
 
   def runWeather(k: String) = {
