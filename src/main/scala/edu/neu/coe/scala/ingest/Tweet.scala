@@ -5,7 +5,7 @@ import spray.json.DefaultJsonProtocol
 import scala.util._
 
 /**
-  * Created by Yuan Ying on 2017/3/26.
+  * Created by Team2 on 2017/3/26.
   */
 case class Tweet(text: String,lang: String,created_at: String,retweet_count: Int, user: User, entities: Entities)
 

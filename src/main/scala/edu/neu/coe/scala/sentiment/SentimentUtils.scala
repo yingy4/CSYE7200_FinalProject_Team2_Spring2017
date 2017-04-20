@@ -10,9 +10,9 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
 import scala.collection.JavaConversions._
 
 /**
-  * Created by YY on 2017/4/6.
+  * Created by Team2 on 2017/4/6.
   *
-  * source:https://github.com/vspiewak/twitter-sentiment-analysis/blob/master/src/main/scala/com/github/vspiewak/util/SentimentAnalysisUtils.scala
+  * reference:https://github.com/vspiewak/twitter-sentiment-analysis/blob/master/src/main/scala/com/github/vspiewak/util/SentimentAnalysisUtils.scala
   */
 object SentimentUtils {
 
@@ -46,13 +46,15 @@ object SentimentUtils {
   case object NOT_UNDERSTOOD extends SENTIMENT_TYPE
 
 
+  def replaceSpecialChar(s: String): String = s.replaceAll("[^\\p{L}\\p{N}\\p{Z}\\p{Sm}\\p{Sc}\\p{Sk}\\p{Pi}\\p{Pf}\\p{Pc}\\p{Mc}]","")
+
   def detectSentimentScore(message: String): Double = {
 
     //RedwoodConfiguration.empty().capture(System.err).apply()
 
     val pipeline = new StanfordCoreNLP(nlpProps)
 
-    val annotation = pipeline.process(message.replaceAll("[^\\p{L}\\p{N}\\p{Z}\\p{Sm}\\p{Sc}\\p{Sk}\\p{Pi}\\p{Pf}\\p{Pc}\\p{Mc}]",""))
+    val annotation = pipeline.process(replaceSpecialChar(message))
 
     val slp = for (sentence <- annotation.get(classOf[CoreAnnotations.SentencesAnnotation])) yield {
       val tree = sentence.get(classOf[SentimentCoreAnnotations.AnnotatedTree])

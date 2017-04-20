@@ -7,7 +7,7 @@ import org.apache.http.impl.client.{HttpClientBuilder}
 import java.util.Calendar
 
 /**
-  * Created by Mushtaq on 3/26/2017.
+  * Created by Team2 on 3/26/2017.
   */
 
 object TwitterClient {

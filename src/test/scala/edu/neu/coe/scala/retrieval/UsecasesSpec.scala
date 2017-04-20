@@ -7,7 +7,7 @@ import org.scalamock.scalatest.MockFactory
 
 
 /**
-  * Created by YY on 2017/4/12.
+  * Created by Team2 on 2017/4/12.
   */
 class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
 

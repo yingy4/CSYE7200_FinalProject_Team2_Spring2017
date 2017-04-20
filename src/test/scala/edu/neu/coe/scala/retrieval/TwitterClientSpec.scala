@@ -9,7 +9,7 @@ import scala.io.{Codec, Source}
 import scala.util._
 
 /**
-  * Created by YY on 2017/3/31.
+  * Created by Team2 on 2017/3/31.
   */
 class TwitterClientSpec extends FlatSpec with Matchers{
 

@@ -8,7 +8,7 @@ import scala.io.{Codec, Source}
 import scala.util._
 
 /**
-  * Created by YY on 2017/4/6.
+  * Created by Team2 on 2017/4/6.
   */
 class SentimentUtilsSpec extends FlatSpec with Matchers {
 
@@ -109,6 +109,13 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
 
   it should "detect 2.0" in {
     SentimentUtils.detectSentimentScore("It was a experience.") shouldBe 2.0
+  }
+
+
+  behavior of "replaceSpecialChar"
+
+  it should "work" in {
+    SentimentUtils.replaceSpecialChar("&*%ABC") shouldBe "ABC"
   }
 
 }
