@@ -180,7 +180,7 @@ class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
   behavior of "calcSentimentFromSearchApi"
 
   it should "work with Boston" in {
-    Usecases.calcSentimentFromSearchApi("Boston weather",1) shouldBe 2.5 +- 2.5
+    Usecases.calcSentimentFromSearchApi("Boston weather",1,false) shouldBe 2.5 +- 2.5
   }
 
 

@@ -6,7 +6,7 @@ import edu.stanford.nlp.ling.CoreAnnotations
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations
 import edu.stanford.nlp.pipeline.StanfordCoreNLP
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
-
+import edu.stanford.nlp.util.logging.RedwoodConfiguration
 import scala.collection.JavaConversions._
 
 /**
@@ -22,9 +22,9 @@ object SentimentUtils {
     props
   }
 
-  def detectSentiment(message: String): SENTIMENT_TYPE = {
+  def detectSentiment(message: String, catchlog: Boolean = true): SENTIMENT_TYPE = {
 
-    detectSentimentScore(message) match {
+    detectSentimentScore(message,catchlog) match {
       case s if s <= 0.0 => NOT_UNDERSTOOD
       case s if s < 1.0 => VERY_NEGATIVE
       case s if s < 2.0 => NEGATIVE
@@ -48,9 +48,9 @@ object SentimentUtils {
 
   def replaceSpecialChar(s: String): String = s.replaceAll("[^\\p{L}\\p{N}\\p{Z}\\p{Sm}\\p{Sc}\\p{Sk}\\p{Pi}\\p{Pf}\\p{Pc}\\p{Mc}]","")
 
-  def detectSentimentScore(message: String): Double = {
+  def detectSentimentScore(message: String, catchlog: Boolean = true): Double = {
 
-    //RedwoodConfiguration.empty().capture(System.err).apply()
+    if (catchlog == true) RedwoodConfiguration.empty().capture(System.err).apply()
 
     val pipeline = new StanfordCoreNLP(nlpProps)
 
@@ -67,7 +67,7 @@ object SentimentUtils {
     val sizes = slp.unzip._2
     val weightedSentiment = weightedSentiments.sum / sizes.sum
 
-    //RedwoodConfiguration.current().clear().apply()
+    if (catchlog == true) RedwoodConfiguration.current().clear().apply()
 
     //println("debug: main: " + mainSentiment)
     //println("debug: avg: " + averageSentiment)
