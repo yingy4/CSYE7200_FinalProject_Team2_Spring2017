@@ -33,3 +33,5 @@ libraryDependencies += "edu.stanford.nlp" % "stanford-corenlp" % "3.5.1"classifi
 
 libraryDependencies += "org.scalatest" %% "scalatest" % scalaTestVersion % "test"
 libraryDependencies += "org.scalamock" %% "scalamock-scalatest-support" % "3.5.0" % "test"
+
+libraryDependencies += "com.github.nscala-time" %% "nscala-time" % "2.16.0"

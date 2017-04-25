@@ -4,10 +4,14 @@ import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer
 import org.apache.commons.io.IOUtils
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.{HttpClientBuilder}
-import java.util.Calendar
+import com.github.nscala_time.time.Imports._
+import com.github.nscala_time.time._
 
 /**
   * Created by Team2 on 3/26/2017.
+  * reference:
+  * https://dev.twitter.com/rest/public
+  * https://github.com/nscala-time/nscala-time
   */
 
 object TwitterClient {
@@ -18,17 +22,16 @@ object TwitterClient {
   val AccessSecret = "7XfA0v9j0utKeUuf44n2YEB3AtzqVlMM0ue4IrJC0v2cK"
 
   def getFromSearchApiByKeyword(k: String, count: Int = 90): String = {
-    val now = Calendar.getInstance()
-    val today = now.get(Calendar.DATE)
-    //println(today)
-    val ss = for(i <- today-7 to today-1) yield getFromSearchApiByKeywordForOneDay(i,k,count)
+    val today= DateTime.now
+    //println(today.toString(StaticDateTimeFormat.forPattern("yyyy-MM-dd")))
+    val ss = for (i <- 1 to 7) yield getFromSearchApiByKeywordForOneDay(today-i.days,k,count)
     ss.mkString
   }
 
-  def getFromSearchApiByKeywordForOneDay(i: Int,k: String, count: Int): String = {
+  def getFromSearchApiByKeywordForOneDay(i: DateTime,k: String, count: Int): String = {
     val consumer = new CommonsHttpOAuthConsumer(ConsumerKey, ConsumerSecret)
     consumer.setTokenWithSecret(AccessToken, AccessSecret)
-    val url = "https://api.twitter.com/1.1/search/tweets.json?q=" + k + "&count=" + count + "&until=2017-04-" + i
+    val url = "https://api.twitter.com/1.1/search/tweets.json?q=" + k + "&count=" + count + "&until=" + i.toString(StaticDateTimeFormat.forPattern("yyyy-MM-dd"))
     //println(url)
     val request = new HttpGet(url)
     consumer.sign(request)

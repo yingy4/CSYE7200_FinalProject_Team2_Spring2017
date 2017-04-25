@@ -12,6 +12,9 @@ import scala.io.{Codec, Source}
 
 /**
   * Created by Team2 on 4/11/17.
+  * reference:
+  * http://140dev.com/twitter-api-programming-tutorials/aggregating-tweets-search-api-vs-streaming-api/
+  * https://www.udemy.com/apache-spark-with-scala-hands-on-with-big-data/learn/v4/overview
   */
 object Usecases {
 
