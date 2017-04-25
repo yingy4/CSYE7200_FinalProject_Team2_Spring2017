@@ -25,7 +25,7 @@ object TwitterClient {
     val today= DateTime.now
     //println(today.toString(StaticDateTimeFormat.forPattern("yyyy-MM-dd")))
     val ss = for (i <- 1 to 7) yield getFromSearchApiByKeywordForOneDay(today-i.days,k,count)
-    ss.mkString
+    ss.mkString("\n")
   }
 
   def getFromSearchApiByKeywordForOneDay(i: DateTime,k: String, count: Int): String = {
@@ -37,7 +37,7 @@ object TwitterClient {
     consumer.sign(request)
     val client = HttpClientBuilder.create().build()
     val response = client.execute(request)
-    IOUtils.toString(response.getEntity().getContent()) + "\n"
+    IOUtils.toString(response.getEntity().getContent())
   }
 
   def main(args: Array[String]) {
