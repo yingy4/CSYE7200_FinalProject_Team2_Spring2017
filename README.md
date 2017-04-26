@@ -13,10 +13,7 @@ Jinjin Zhang - zhang.jinj@husky.neu.edu
 
 # Sentiment Analysis on Tweets
 
-Planning presentation:
-
-https://docs.google.com/a/husky.neu.edu/presentation/d/1-KjtC4Uy5i0-RVGBogw1Nqr2QRDuedXLVl85UjXmvUY/edit?usp=sharing
-
+<a href="https://docs.google.com/a/husky.neu.edu/presentation/d/1-KjtC4Uy5i0-RVGBogw1Nqr2QRDuedXLVl85UjXmvUY/edit?usp=sharing">Planning presentation</a>
 
 # Abstract
 The goal is to process real Twitter datasets to extract meaningful analysis by performing Sentiment Analysis. In this project, we utilize information available through the Twitter API to gather information about the tweets and their users. Sentiment analysis is used to see if a text is neutral, positive or negative. Since Twitter restricts each tweet to be less than 140 characters, users’ comments tend to be straightforward. In addition, because of its huge influences, many people have started to include a hashtag in their tweets to attract social attention. Therefore, Twitter has become a great platform to examine people’s feedback. Thus twitter is full of sentiments. This project is using Twitter Search and Streaming API through Spark Streaming to retreive the tweets, Stanford NLP library to detect the sentiments and Apache Zeppelin to visualize the results. 
