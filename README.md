@@ -40,3 +40,7 @@ The arguments that can be passed while running the jar are:-
 7\. stock => It will run 10 company stock comparison   
 8\. stock Bank of America => It will return sentiment score for Bank of America stock   
 
+If you are using SBT, you can run as:
+1\. sbt "run hashtags"
+2\. sbt "run hashtags New York"
+3\. etc...
