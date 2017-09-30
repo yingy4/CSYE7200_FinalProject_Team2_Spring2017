@@ -46,3 +46,6 @@ If you are using SBT, you can run as:
 1\. sbt "run hashtags"  
 2\. sbt "run hashtags New York"  
 3\. etc...
+
+# Continuous integration
+This project is using CircleCI as the continuous integration tool.
