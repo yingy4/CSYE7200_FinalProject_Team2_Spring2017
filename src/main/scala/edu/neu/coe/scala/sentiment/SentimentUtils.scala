@@ -57,7 +57,7 @@ object SentimentUtils {
     val annotation = pipeline.process(replaceSpecialChar(message))
 
     val slp = for (sentence <- annotation.get(classOf[CoreAnnotations.SentencesAnnotation])) yield {
-      val tree = sentence.get(classOf[SentimentCoreAnnotations.AnnotatedTree])
+      val tree = sentence.get(classOf[SentimentCoreAnnotations.SentimentAnnotatedTree])
       val sentiment = RNNCoreAnnotations.getPredictedClass(tree)
       val partText = sentence.toString
       (sentiment.toDouble,partText.length)
