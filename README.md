@@ -1,4 +1,4 @@
-# CSYE7200_FinalProject_Team2_Spring2017
+# CSYE7200_FinalProject_Team2_Spring2017  [![CircleCI](https://circleci.com/gh/yingy4/CSYE7200_FinalProject_Team2_Spring2017/tree/master.svg?style=svg)](https://circleci.com/gh/yingy4/CSYE7200_FinalProject_Team2_Spring2017/tree/master)
 This is the CSYE7200 FinalProject for Team2 Spring2017
 
 Team member:
@@ -49,3 +49,6 @@ If you are using SBT, you can run as:
 
 # Continuous integration
 This project is using CircleCI as the continuous integration tool.
+
+Current Status:
+[![CircleCI](https://circleci.com/gh/yingy4/CSYE7200_FinalProject_Team2_Spring2017/tree/master.svg?style=svg)](https://circleci.com/gh/yingy4/CSYE7200_FinalProject_Team2_Spring2017/tree/master)
