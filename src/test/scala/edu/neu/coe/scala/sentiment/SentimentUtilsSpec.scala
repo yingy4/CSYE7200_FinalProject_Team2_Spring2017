@@ -25,7 +25,7 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
     implicit val codec = Codec.UTF8
     val source = Source.fromFile("testdata//tweet1_POSITIVE.json")
     val ts = for (t <- ingester(source).toSeq) yield t
-    val tweet:Tweet = ts.head match {
+    val tweet:Tweet = ts.headOption.getOrElse(fail()) match {
       case Success(x) => x
       case Failure(e) => throw new Exception("err:"+e)
     }
@@ -38,7 +38,7 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
     implicit val codec = Codec.UTF8
     val source = Source.fromFile("testdata//tweet1_NEUTRAL.json")
     val ts = for (t <- ingester(source).toSeq) yield t
-    val tweet:Tweet = ts.head match {
+    val tweet:Tweet = ts.headOption.getOrElse(fail()) match {
       case Success(x) => x
       case Failure(e) => throw new Exception("err:"+e)
     }
@@ -51,7 +51,7 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
     implicit val codec = Codec.UTF8
     val source = Source.fromFile("testdata//tweet1_NEGATIVE.json")
     val ts = for (t <- ingester(source).toSeq) yield t
-    val tweet:Tweet = ts.head match {
+    val tweet:Tweet = ts.headOption.getOrElse(fail()) match {
       case Success(x) => x
       case Failure(e) => throw new Exception("err:"+e)
     }
