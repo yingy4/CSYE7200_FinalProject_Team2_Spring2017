@@ -1,4 +1,4 @@
-# CSYE7200_FinalProject_Team2_Spring2017  [![CircleCI](https://circleci.com/gh/yingy4/CSYE7200_FinalProject_Team2_Spring2017/tree/master.svg?style=svg)](https://circleci.com/gh/yingy4/CSYE7200_FinalProject_Team2_Spring2017/tree/master)
+# CSYE7200_FinalProject_Team2_Spring2017  [![CircleCI](https://circleci.com/gh/yingy4/CSYE7200_FinalProject_Team2_Spring2017/tree/master.svg?style=svg)](https://circleci.com/gh/yingy4/CSYE7200_FinalProject_Team2_Spring2017/tree/master) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6553cd3c228a4db2914589fd1839eacd)](https://www.codacy.com/app/yingy4/CSYE7200_FinalProject_Team2_Spring2017?utm_source=github.com&utm_medium=referral&utm_content=yingy4/CSYE7200_FinalProject_Team2_Spring2017&utm_campaign=badger)
 This is the CSYE7200 FinalProject for Team2 Spring2017
 
 Team member:
