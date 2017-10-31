@@ -39,7 +39,7 @@ class TwitterClientSpec extends FlatSpec with Matchers{
     val source = Source.fromFile("testdata//sample3.json")
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = rts.flatMap(_.toOption)
-    rs.head.statuses.head should matchPattern { case Tweet(_,_,_,_,_,_) => }
+    rs.headOption.getOrElse(fail()).statuses.headOption.getOrElse(fail()) should matchPattern { case Tweet(_,_,_,_,_,_) => }
     source.close()
   }
 

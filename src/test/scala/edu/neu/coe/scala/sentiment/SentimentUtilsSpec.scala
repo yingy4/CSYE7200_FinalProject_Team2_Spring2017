@@ -16,7 +16,7 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
 
   it should "work for positive string" in {
 
-    SentimentUtils.detectSentiment("It was a nice experience.",false) shouldBe (SentimentUtils.POSITIVE)
+    SentimentUtils.detectSentiment("It was a nice experience.",false) shouldBe SentimentUtils.POSITIVE
 
   }
 
@@ -76,7 +76,7 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
     val source = Source.fromFile("testdata//sample2.json")
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = rts.flatMap(_.toOption)
-    SentimentUtils.detectSentiment(rs.head.statuses.head.text,false) should matchPattern {
+    SentimentUtils.detectSentiment(rs.headOption.getOrElse(fail()).statuses.headOption.getOrElse(fail()).text,false) should matchPattern {
       case SentimentUtils.VERY_NEGATIVE =>
       case SentimentUtils.NEGATIVE =>
       case SentimentUtils.NEUTRAL =>
@@ -93,7 +93,7 @@ class SentimentUtilsSpec extends FlatSpec with Matchers {
     val source = Source.fromFile("testdata//sample3.json")
     val rts = for (t <- ingester(source).toSeq) yield t
     val rs = rts.flatMap(_.toOption)
-    rs.head.statuses.map(x => SentimentUtils.detectSentiment(x.text,false)).size shouldBe rs.head.statuses.size
+    rs.headOption.getOrElse(fail()).statuses.map(x => SentimentUtils.detectSentiment(x.text,false)).size shouldBe rs.headOption.getOrElse(fail()).statuses.size
     source.close()
   }
 

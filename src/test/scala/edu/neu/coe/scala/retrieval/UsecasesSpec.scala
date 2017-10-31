@@ -36,7 +36,7 @@ class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
 
   it should "match text" in {
     (mockedStatus1.getText _).expects().returning("test1 #ABC").anyNumberOfTimes()
-    filteredList.head.getText shouldBe "test1 #ABC"
+    filteredList.headOption.getOrElse(fail()).getText shouldBe "test1 #ABC"
   }
 
 
@@ -60,7 +60,7 @@ class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
   }
 
   it should "contain hashtag #ABC" in {
-    mappedList2.head._1 shouldBe "#ABC"
+    mappedList2.headOption.getOrElse(fail())._1 shouldBe "#ABC"
   }
 
   behavior of "addCountToHashTags"
@@ -72,11 +72,11 @@ class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
   }
 
   it should "match pattern" in {
-    mappedList3.head should matchPattern {case (_,(_,_)) =>}
+    mappedList3.headOption.getOrElse(fail()) should matchPattern {case (_,(_,_)) =>}
   }
 
   it should "match context" in {
-    mappedList3.head shouldBe ("#ABC",(1,2.0))
+    mappedList3.headOption.getOrElse(fail()) shouldBe ("#ABC",(1,2.0))
   }
 
 
@@ -164,10 +164,10 @@ class UsecasesSpec extends FlatSpec with Matchers with MockFactory {
   }
 
   it should "match context" in {
-    //println(mappedList4.head._1)
-    //println(mappedList4.head._2)
-    mappedList4.head._1 shouldBe "New York City, NY, USA,40.730610, -73.935242"
-    mappedList4.head._2 shouldBe 2.0
+    //println(mappedList4.headOption.getOrElse(fail())._1)
+    //println(mappedList4.headOption.getOrElse(fail())._2)
+    mappedList4.headOption.getOrElse(fail())._1 shouldBe "New York City, NY, USA,40.730610, -73.935242"
+    mappedList4.headOption.getOrElse(fail())._2 shouldBe 2.0
   }
 
   behavior of "compareSentiment"
