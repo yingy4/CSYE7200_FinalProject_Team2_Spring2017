@@ -86,9 +86,9 @@ object Usecases {
   }
 
   val getLocationAndSentiment = {
-    status:Status => (status.getGeoLocation match {
-      case g:GeoLocation => matchLocation(g)
-      case null => "null"
+    status:Status => (Option(status.getGeoLocation) match {
+      case Some(g) => matchLocation(g)
+      case _ => "null"
     }, SentimentUtils.detectSentimentScore(status.getText()))
   }
 
@@ -115,9 +115,7 @@ object Usecases {
 
   def nearLocation(g:GeoLocation,latitude: Double,longitude: Double) = {
     //println(g)
-    if ((math.abs(g.getLatitude - latitude) < 2) &&
-      (math.abs(g.getLongitude - longitude) < 2)
-    ) true else false
+    (math.abs(g.getLatitude - latitude) < 2) && (math.abs(g.getLongitude - longitude) < 2)
   }
 
 
@@ -177,5 +175,5 @@ object Usecases {
     avgscore
   }
 
-  def compareSentiment(a:Double,b:Double) :Boolean = if (a > b) true else false
+  def compareSentiment(a:Double,b:Double) :Boolean = a > b
 }
